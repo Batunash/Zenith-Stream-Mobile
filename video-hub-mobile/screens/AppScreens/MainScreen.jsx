@@ -3,6 +3,8 @@ import { View, Image, StyleSheet,Dimensions,Text,TextInput,TouchableOpacity} fro
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import HeroSection from '../../components/HeroSection';
+import HorizontalList from '../../components/HorizontalList';
 const { width, height } = Dimensions.get("window");
 
 export default function(){
@@ -11,7 +13,12 @@ export default function(){
 
     return(
         <View style={[styles.container,{ paddingTop: insets.top, paddingBottom: insets.bottom },]}>
-            <Text>Main Screen</Text>
+            <View style={styles.HeroSection}>
+                <HeroSection />
+            </View>
+            <View style={styles.HorizontalList}>
+                <HorizontalList />
+            </View>
         </View>
     );
 
@@ -21,7 +28,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ffffffff",
     alignItems: "center",
-    justifyContent: "center",
-    gap: height * 0.02, // dikey boşluk da orantılı
+    justifyContent: "flex-start",
+    gap: height * 0.2, // dikey boşluk da orantılı
   },
+  HeroSection:{
+    flex: 1,
+    width: '100%',
+  },
+  HorizontalList:{
+    flex:1,
+    width:'100%'
+  }
 })
