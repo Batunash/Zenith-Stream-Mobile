@@ -40,7 +40,7 @@ export default function RootNavigator() {
   return (
     <AuthContext.Provider value={{ userToken, setUserToken }}>
       <NavigationContainer>
-        {userToken ? <AppStack /> : <AuthStack />}
+        {userToken ? <AuthStack /> : <AppStack />} 
       </NavigationContainer>
     </AuthContext.Provider>
   );

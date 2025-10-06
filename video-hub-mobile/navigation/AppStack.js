@@ -1,11 +1,20 @@
-// AppStack.js
 import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-export default function AppStack() {
+// App ekranlarını içe aktar
+import Main from '../screens/AppScreens/MainScreen'
+const Stack = createNativeStackNavigator();
+
+export default function AuthStack() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" />
-    </View>
+    <Stack.Navigator
+      initialRouteName="Main"
+      screenOptions={{
+        headerShown: false, 
+        animation: 'slide_from_right',
+      }}
+    >
+       <Stack.Screen name="Main" component={Main} />
+    </Stack.Navigator>
   );
 }
