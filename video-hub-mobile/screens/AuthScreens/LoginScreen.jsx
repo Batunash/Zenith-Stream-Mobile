@@ -42,7 +42,7 @@ export default function LoginScreen() {
         <View style={{ flexDirection: "row", alignItems: "center", marginTop: height * 0.015 }}>
             <Text style={styles.text}>Don't have an account? </Text>
             <TouchableOpacity onPress={(handleSignupButton)}>
-                <Text style={[styles.text, { color: "#e50914", fontWeight: "bold" }]}>Sign up</Text>
+                <Text style={[styles.text, { color: "#C6A14A", fontWeight: "bold" }]}>Sign up</Text>
             </TouchableOpacity>
         </View>
 
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     marginTop: height * 0.015,
     width: width * 0.8,
     height: height * 0.065,
-    backgroundColor: "#e50914",
+    backgroundColor: "#C6A14A",
     borderRadius: width * 0.03,
     alignItems: "center",
     justifyContent: "center",
