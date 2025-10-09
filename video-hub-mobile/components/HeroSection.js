@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#744141ff',
+    backgroundColor: '#121212',
   },
   logo: {
     position: 'absolute',
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   content:{
     flex :1,
@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
   buttonText:{
     color: "white",
     fontWeight: "bold",
+    marginLeft: 5,
     fontSize: width * 0.04, // orantılı yazı boyutu
   },
   headerText:{

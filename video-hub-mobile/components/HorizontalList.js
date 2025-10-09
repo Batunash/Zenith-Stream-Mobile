@@ -1,23 +1,42 @@
-import React, { useState } from "react";
-import { View, Image,ImageBackground, StyleSheet,Dimensions,Text,TouchableOpacity} from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
-import VideoCard from './VideoCard';
+import React from "react";
+import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
+import VideoCard from "./VideoCard";
+
 const { width, height } = Dimensions.get("window");
 
-export default function (){
-    const HorizontalListHeight = height*0.33;
-    return(
-        <View style={[styles.container,{height:HorizontalListHeight}]}>
-            <Text>HorizontalListHeight</Text>
+export default function HorizontalList() {
+  const HorizontalListHeight = height * 0.33;
+  const data = [1, 2, 3, 4, 5];
+
+  return (
+    <View style={[styles.container, { height: HorizontalListHeight }]}>
+      <Text style={styles.title}>Popular Now</Text>
+      <View style={{ flex: 1, justifyContent: "center" }}>
+        <FlatList
+          data={data}
+          horizontal
+          keyExtractor={(item) => item.toString()}
+          renderItem={() => (
             <VideoCard HorizontalListHeight={HorizontalListHeight} />
-        </View>
-    )
+          )}
+          showsHorizontalScrollIndicator={false}
+        />
+      </View>
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#352c2cff',
+    width: "100%",
+    backgroundColor: "#1A1A1A",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
-})
+  title: {
+    color: "white",
+    fontSize: width * 0.045,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+});

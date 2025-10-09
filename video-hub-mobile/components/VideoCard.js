@@ -1,22 +1,32 @@
-import React, { useState } from "react";
-import { View, Image,ImageBackground, StyleSheet,Dimensions,Text,TouchableOpacity} from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
-const { width, height } = Dimensions.get("window");
+import React from "react";
+import { View, Image, StyleSheet, Dimensions } from "react-native";
 
-export default function VideoCard(HorizontalListHeight){
-    const cardHeight=HorizontalListHeight*0.66;
+const { width } = Dimensions.get("window");
 
-    return(
-        <View style={[styles.container,{height:cardHeight}]}>
-            <Image source={require('../assets/logo.png')} resizeMode="cover"/> 
-        </View>
-    )
+export default function VideoCard({ HorizontalListHeight }) {
+  const cardHeight = HorizontalListHeight * 0.66;
+  const cardWidth = width * 0.35; // orantılı genişlik
+
+  return (
+    <View style={[styles.container, { height: cardHeight, width: cardWidth }]}>
+      <Image
+        source={require("../assets/logo.png")}
+        resizeMode="cover"
+        style={styles.image}
+      />
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#000000ff',
+    backgroundColor: "#000",
+    borderRadius: 10,
+    overflow: "hidden",
+    marginHorizontal: 8,
   },
-})
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+});

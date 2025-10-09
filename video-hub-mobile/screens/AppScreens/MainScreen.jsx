@@ -1,42 +1,65 @@
 import React, { useState } from "react";
-import { View, Image, StyleSheet,Dimensions,Text,TextInput,TouchableOpacity} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, ScrollView, StyleSheet, Dimensions,TouchableOpacity,Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from '@react-navigation/native';
-import HeroSection from '../../components/HeroSection';
-import HorizontalList from '../../components/HorizontalList';
-const { width, height } = Dimensions.get("window");
+import HeroSection from "../../components/HeroSection";
+import HorizontalList from "../../components/HorizontalList";
+import Footer from "../../components/Footer";
+const { height } = Dimensions.get("window");
 
-export default function(){
-    const navigation = useNavigation();
-    const insets = useSafeAreaInsets();
+export default function MainScreen() {
+  const insets = useSafeAreaInsets();
 
-    return(
-        <View style={[styles.container,{ paddingTop: insets.top, paddingBottom: insets.bottom },]}>
-            <View style={styles.HeroSection}>
-                <HeroSection />
-            </View>
-            <View style={styles.HorizontalList}>
-                <HorizontalList />
-            </View>
-        </View>
-    );
+  // 🔹 Kullanıcının oluşturduğu kategoriler
+  const [categories, setCategories] = useState([
+    "Popular Now",
+    "New Releases",
+    "Recommended",
+  ]);
 
+  return (
+    <View
+      style={[
+        styles.container,
+        { paddingTop: insets.top, paddingBottom: insets.bottom },
+      ]}
+    >
+      <HeroSection />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {categories.map((category, index) => (
+          <HorizontalList key={index} title={category} />
+        ))}
+        <TouchableOpacity style={styles.addButton} >
+            <Ionicons name="add-circle" size={50} color="#000000ff" />
+        </TouchableOpacity>
+        
+      </ScrollView>
+      <Footer  />
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffffff",
+    backgroundColor: "#121212",
+  },
+  scrollContent: {
+    paddingBottom: 20,
+    gap: height * 0.03,
     alignItems: "center",
-    justifyContent: "flex-start",
-    gap: height * 0.2, // dikey boşluk da orantılı
   },
-  HeroSection:{
-    flex: 1,
-    width: '100%',
+  addButton:{
+    width:60,
+    height:60,
+    borderRadius:30,
+    backgroundColor: '#C6A14A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOpacity: 0.5
+    
   },
-  HorizontalList:{
-    flex:1,
-    width:'100%'
-  }
-})
+});
