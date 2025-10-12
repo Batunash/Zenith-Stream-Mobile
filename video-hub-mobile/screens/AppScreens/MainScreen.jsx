@@ -5,10 +5,12 @@ import { Ionicons } from "@expo/vector-icons";
 import HeroSection from "../../components/HeroSection";
 import HorizontalList from "../../components/HorizontalList";
 import Footer from "../../components/Footer";
+import { useNavigation } from '@react-navigation/native';
 const { height } = Dimensions.get("window");
 
 export default function MainScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   // 🔹 Kullanıcının oluşturduğu kategoriler
   const [categories, setCategories] = useState([
@@ -16,6 +18,9 @@ export default function MainScreen() {
     "New Releases",
     "Recommended",
   ]);
+  const handleSeeAll =()=>{
+    navigation.navigate('SeeAllScreen');
+  }
 
   return (
     <View
@@ -30,14 +35,14 @@ export default function MainScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         {categories.map((category, index) => (
-          <HorizontalList key={index} title={category} />
+          <HorizontalList key={index} title={category} onSeeAll={() => handleSeeAll()} />
         ))}
         <TouchableOpacity style={styles.addButton} >
             <Ionicons name="add-circle" size={50} color="#000000ff" />
         </TouchableOpacity>
         
       </ScrollView>
-      <Footer  />
+      <Footer/>
     </View>
   );
 }

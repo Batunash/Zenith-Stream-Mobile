@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // App ekranlarını içe aktar
 import Main from '../screens/AppScreens/MainScreen'
+import SeeAllScreen from '../screens/AppScreens/SeeAllScreen'
 const Stack = createNativeStackNavigator();
 
 export default function AuthStack() {
@@ -15,6 +16,7 @@ export default function AuthStack() {
       }}
     >
        <Stack.Screen name="Main" component={Main} />
+       <Stack.Screen name="SeeAllScreen" component={SeeAllScreen} />
     </Stack.Navigator>
   );
 }

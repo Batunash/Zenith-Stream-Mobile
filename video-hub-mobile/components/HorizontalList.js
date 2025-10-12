@@ -1,16 +1,26 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
+import { View, Text, FlatList, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import VideoCard from "./VideoCard";
 
 const { width, height } = Dimensions.get("window");
 
-export default function HorizontalList() {
+export default function HorizontalList({onSeeAll}) {
   const HorizontalListHeight = height * 0.33;
   const data = [1, 2, 3, 4, 5];
-
+  const handleSeeAll = (e)=>{
+    e.stopPropagation();
+    if (onSeeAll) {
+      onSeeAll();
+    }
+  };
   return (
     <View style={[styles.container, { height: HorizontalListHeight }]}>
-      <Text style={styles.title}>Popular Now</Text>
+      <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+        <Text style={styles.title}>Popular Now</Text> 
+        <TouchableOpacity onPress={handleSeeAll}>
+          <Text style={styles.text}>See All</Text>
+        </TouchableOpacity>
+        </View>
       <View style={{ flex: 1, justifyContent: "center" }}>
         <FlatList
           data={data}
@@ -39,4 +49,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 5,
   },
+  text: {
+    color: "green",
+    fontSize: width * 0.045,
+    textDecorationLine:"underline",
+    textDecorationColor: "green",
+    marginBottom: 5,
+  }
 });
