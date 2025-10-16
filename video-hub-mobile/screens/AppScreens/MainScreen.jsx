@@ -21,6 +21,9 @@ export default function MainScreen() {
   const handleSeeAll =()=>{
     navigation.navigate('SeeAllScreen');
   }
+  const handleAdd =()=>{
+    navigation.navigate('CreateHorizontalViewScreen');
+  }
 
   return (
     <View
@@ -38,7 +41,7 @@ export default function MainScreen() {
           <HorizontalList key={index} title={category} onSeeAll={() => handleSeeAll()} />
         ))}
         <TouchableOpacity style={styles.addButton} >
-            <Ionicons name="add-circle" size={50} color="#000000ff" />
+            <Ionicons name="add-circle" size={50} color="#000000ff" onPress={handleAdd} />
         </TouchableOpacity>
         
       </ScrollView>

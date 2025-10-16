@@ -16,7 +16,7 @@ const sampleSerie = {
   genre: 'Fantasy',
   imageUrl: "../../assets/logo.png"
 };
-export default function SeeAllScreen() {
+export default function SeeAllScreen({ headerTitle, listData }) {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const handleGoBack = () => {
@@ -34,7 +34,7 @@ export default function SeeAllScreen() {
                 <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
                     <Ionicons name="arrow-back-outline" size={32} color="#ffffff" />
                 </TouchableOpacity>
-                <Text style={styles.header}>Header</Text>
+                <Text style={styles.header}>{headerTitle}</Text>
              </View>
             <View style={{ flex: 1, justifyContent: "center" }}>
                 <FlatList

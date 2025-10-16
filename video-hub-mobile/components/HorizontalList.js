@@ -27,7 +27,7 @@ export default function HorizontalList({onSeeAll}) {
           horizontal
           keyExtractor={(item) => item.toString()}
           renderItem={() => (
-            <VideoCard HorizontalListHeight={HorizontalListHeight} />
+            <VideoCard Height={HorizontalListHeight} />
           )}
           showsHorizontalScrollIndicator={false}
         />
