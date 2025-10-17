@@ -3,22 +3,22 @@ import { View, Image,ImageBackground, StyleSheet,Dimensions,Text,TouchableOpacit
 import { Ionicons } from "@expo/vector-icons";
 const { width, height } = Dimensions.get("window");
 
-export default function(){
+export default function HeroSection({onComponentPress}){
     const logosize = width*0.20;
     return(
-        <View style={[styles.container, { height: height * 0.33 }]}>
-            <ImageBackground source={require('../assets/image.jpg')} resizeMode="cover" style={styles.bgimage}>
-                <View style={styles.overlay} />
-                    <Image source={require('../assets/logo.png')} style={[styles.logo,{width: logosize, height: logosize}]} />
-                <View style={styles.content}>
-                    <Text style={styles.headerText}>Deamon Slayer</Text>
-                    <TouchableOpacity style={styles.buttonPlay}>
-                        <Ionicons name="play-circle" size={20} color="#000000ff" />
-                        <Text style={styles.buttonText}>Play</Text>
-                    </TouchableOpacity>
-                </View>
-            </ImageBackground>
-        </View>            
+        <TouchableOpacity style={[styles.container, { height: height * 0.33 }]} onPress={onComponentPress}>
+              <ImageBackground source={require('../assets/image.jpg')} resizeMode="cover" style={styles.bgimage}>
+                  <View style={styles.overlay} />
+                      <Image source={require('../assets/logo.png')} style={[styles.logo,{width: logosize, height: logosize}]} />
+                  <View style={styles.content}>
+                      <Text style={styles.headerText}>Deamon Slayer</Text>
+                      <TouchableOpacity style={styles.buttonPlay}>
+                          <Ionicons name="play-circle" size={20} color="#000000ff" />
+                          <Text style={styles.buttonText}>Play</Text>
+                      </TouchableOpacity>
+                  </View>
+              </ImageBackground>
+        </TouchableOpacity>            
     );
 }
 const styles = StyleSheet.create({

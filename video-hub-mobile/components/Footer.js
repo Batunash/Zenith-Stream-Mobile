@@ -28,12 +28,12 @@ const Footer = () => {
       {/* Downloads */}
       <TouchableOpacity
         style={styles.iconContainer}
-        onPress={() => navigation.navigate('Downloads')}
+        onPress={() => navigation.navigate('DownloadsScreen')}
       >
         <Ionicons
-          name={currentRoute === 'Downloads' ? 'download' : 'download-outline'}
+          name={currentRoute === 'DownloadsScreen' ? 'download' : 'download-outline'}
           size={28}
-          color={currentRoute === 'Downloads' ? '#C6A14A' : '#777777'}
+          color={currentRoute === 'DownloadsScreen' ? '#C6A14A' : '#777777'}
         />
       </TouchableOpacity>
 
