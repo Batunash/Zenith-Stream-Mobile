@@ -32,7 +32,7 @@ export default function MainScreen() {
   const handleAdd =()=>{
     navigation.navigate('CreateHorizontalViewScreen');
   }
-  const handleHero=()=>{
+  const handleSerieDetail=()=>{
     navigation.navigate('SerieDetailScreen');
   }
   const handleDownloads = () => {
@@ -55,13 +55,13 @@ export default function MainScreen() {
         { paddingTop: insets.top, paddingBottom: insets.bottom },
       ]}
     >
-      <HeroSection onComponentPress={handleHero} />
+      <HeroSection onComponentPress={handleSerieDetail} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {categories.map((category, index) => (
-          <HorizontalList key={index} title={category} onSeeAll={() => handleSeeAll(category)} />
+          <HorizontalList key={index} title={category} onSeeAll={() => handleSeeAll(category)} onCardPress={handleSerieDetail}/>
         ))}
         <TouchableOpacity style={styles.addButton} >
             <Ionicons name="add-circle" size={50} color="#000000ff" onPress={handleAdd} />

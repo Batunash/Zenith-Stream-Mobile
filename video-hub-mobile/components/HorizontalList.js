@@ -4,7 +4,7 @@ import VideoCard from "./VideoCard";
 
 const { width, height } = Dimensions.get("window");
 
-export default function HorizontalList({onSeeAll}) {
+export default function HorizontalList({onSeeAll,onCardPress}) {
   const HorizontalListHeight = height * 0.33;
   const data = [1, 2, 3, 4, 5];
   const handleSeeAll = (e)=>{
@@ -27,7 +27,8 @@ export default function HorizontalList({onSeeAll}) {
           horizontal
           keyExtractor={(item) => item.toString()}
           renderItem={() => (
-            <VideoCard Height={HorizontalListHeight} />
+            <VideoCard Height={HorizontalListHeight} 
+            onPress={onCardPress}/>
           )}
           showsHorizontalScrollIndicator={false}
         />
