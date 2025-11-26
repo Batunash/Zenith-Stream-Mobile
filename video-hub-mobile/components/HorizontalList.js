@@ -14,7 +14,6 @@ const { width, height } = Dimensions.get("window");
 export default function HorizontalList({ title, data = [], onSeeAll, onCardPress }) {
   const HorizontalListHeight = height * 0.33;
 
-  // Boş veri kontrolü
   if (!Array.isArray(data) || data.length === 0) return null;
 
   const handleSeeAll = useCallback(
@@ -43,7 +42,6 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
         { height: HorizontalListHeight, minHeight: 150 },
       ]}
     >
-      {/* Başlık satırı */}
       <View style={styles.header}>
         <Text style={styles.title} numberOfLines={1}>
           {title}
@@ -57,8 +55,6 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
           <Text style={styles.seeAll}>See All</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Kart listesi */}
       <FlatList
         data={data}
         horizontal

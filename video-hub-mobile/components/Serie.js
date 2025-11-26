@@ -22,7 +22,6 @@ export default function Serie({ serie, onSeriePress, onPlayPress, showDownloaded
 
   return (
     <View style={styles.container}>
-      {/* Dizi kartı */}
       <TouchableOpacity onPress={() => onSeriePress?.(serie.id)}>
         <Image source={{ uri: serie.poster }} style={styles.image} />
       </TouchableOpacity>
@@ -33,8 +32,6 @@ export default function Serie({ serie, onSeriePress, onPlayPress, showDownloaded
           {serie.description || "No description"}
         </Text>
       </View>
-
-      {/* Eğer Downloads ekranındaysak */}
       {showDownloadedEpisodes && serie.downloadedEpisodes && (
         <FlatList
           data={serie.downloadedEpisodes}

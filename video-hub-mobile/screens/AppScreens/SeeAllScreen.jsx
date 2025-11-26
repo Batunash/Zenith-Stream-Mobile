@@ -21,7 +21,7 @@ export default function SeeAllScreen() {
  const handlePlay = (serieId, episode) => {
     navigation.navigate("VideoPlayer", {
       serieId,
-      seasonId: episode.seasonId,  // 💥 backend için gerekli
+      seasonId: episode.seasonId, 
       episodeId: episode.id,
       title: episode.title,
     });

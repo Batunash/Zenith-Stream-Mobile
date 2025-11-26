@@ -21,11 +21,8 @@ export default function CreateHorizontalViewScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { series, addList } = useLibraryStore();
-
   const [categoryName, setCategoryName] = useState("");
   const [selectedSeries, setSelectedSeries] = useState([]);
-
-  // 🔹 Dizi seçimini yönet
   const handleSelectSerie = (serieId) => {
     setSelectedSeries((current) =>
       current.includes(serieId)
@@ -33,8 +30,6 @@ export default function CreateHorizontalViewScreen() {
         : [...current, serieId]
     );
   };
-
-  // 🔹 Liste oluştur
   const handleCreateList = () => {
     if (!categoryName.trim()) {
       alert("Please enter a category name.");
@@ -48,8 +43,6 @@ export default function CreateHorizontalViewScreen() {
     addList({ title: categoryName, seriesIds: selectedSeries });
     navigation.goBack();
   };
-
-  // 🔹 Geri dön
   const handleGoBack = () => {
     navigation.goBack();
   };
@@ -61,15 +54,12 @@ export default function CreateHorizontalViewScreen() {
         { paddingTop: insets.top, paddingBottom: insets.bottom },
       ]}
     >
-      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
           <Ionicons name="arrow-back-outline" size={32} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Category</Text>
       </View>
-
-      {/* INPUT */}
       <View style={styles.inputContainer}>
         <Ionicons
           name="create-outline"
@@ -86,8 +76,6 @@ export default function CreateHorizontalViewScreen() {
           autoCapitalize="none"
         />
       </View>
-
-      {/* DİZİLER LİSTESİ */}
       <ScrollView>
         <View style={styles.cardContainer}>
           {series.map((item) => (
@@ -102,8 +90,6 @@ export default function CreateHorizontalViewScreen() {
           ))}
         </View>
       </ScrollView>
-
-      {/* CREATE BUTTON */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.createButton} onPress={handleCreateList}>
           <Text style={styles.buttonText}>Create</Text>

@@ -56,7 +56,6 @@ export default function BaseListScreen({
         { paddingTop: insets.top, paddingBottom: insets.bottom },
       ]}
     >
-      {/* Üst başlık */}
       <View style={styles.top}>
         <TouchableOpacity
           onPress={handleGoBack}
@@ -71,8 +70,6 @@ export default function BaseListScreen({
           {headerTitle}
         </Text>
       </View>
-
-      {/* Liste */}
       <FlatList
         data={listData}
         keyExtractor={(item, index) => String(item?.id ?? index)}

@@ -53,7 +53,6 @@ export default function RegisterScreen() {
 
       <Text style={styles.text}>Create Your Account</Text>
 
-      {/* Email input */}
       <View style={styles.inputContainer}>
         <Ionicons
           name="mail-outline"
@@ -72,7 +71,6 @@ export default function RegisterScreen() {
         />
       </View>
 
-      {/* Password input */}
       <View style={styles.inputContainer}>
         <Ionicons
           name="lock-closed-outline"
@@ -97,7 +95,6 @@ export default function RegisterScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Register button */}
       <TouchableOpacity
         style={styles.button}
         onPress={handleRegister}
@@ -110,10 +107,7 @@ export default function RegisterScreen() {
         )}
       </TouchableOpacity>
 
-      {/* Error text */}
       {error && <Text style={styles.errorText}>{error}</Text>}
-
-      {/* Already have account */}
       <View
         style={{
           flexDirection: "row",

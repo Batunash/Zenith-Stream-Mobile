@@ -1,27 +1,49 @@
 import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuthStore } from "../store/useAuthStore";
 import AppStack from "./AppStack";
 import AuthStack from "./AuthStack";
+import ConnectionScreen from "../screens/AuthScreens/ConnectionScreen";
 import SplashScreen from "../screens/splashScreen";
 
 export default function RootNavigator() {
   const { token } = useAuthStore();
-  const [isReady, setIsReady] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [serverUrl, setServerUrl] = useState(null);
+  const [isSetupDone, setIsSetupDone] = useState(false);
 
   useEffect(() => {
-    // Küçük gecikme persist'in AsyncStorage'dan yüklenmesi için yeterli
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 800);
-
-    return () => clearTimeout(timer);
+    const init = async () => {
+      try {
+        const url = await AsyncStorage.getItem("server-url");
+        if (url) {
+            setServerUrl(url);
+            setIsSetupDone(true);
+        }
+      } catch (e) {
+        console.log("Init error:", e);
+      } finally {
+        setTimeout(() => setLoading(false), 1000);
+      }
+    };
+    init();
   }, []);
 
-  if (!isReady) {
-    return <SplashScreen />;
+  if (loading) return <SplashScreen />;
+  if (!isSetupDone) {
+    return (
+      <NavigationContainer>
+        <ConnectionScreen
+          onConnectionSuccess={async (newUrl) => {
+            await AsyncStorage.setItem("server-url", newUrl);
+            setServerUrl(newUrl);
+            setIsSetupDone(true);
+          }}
+        />
+      </NavigationContainer>
+    );
   }
-
   return (
     <NavigationContainer>
       {token ? <AppStack /> : <AuthStack />}

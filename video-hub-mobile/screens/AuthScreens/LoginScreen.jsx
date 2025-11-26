@@ -52,7 +52,6 @@ export default function LoginScreen() {
 
       <Text style={styles.text}>Login to Your Account</Text>
 
-      {/* Email input */}
       <View style={styles.inputContainer}>
         <Ionicons
           name="mail-outline"
@@ -71,7 +70,6 @@ export default function LoginScreen() {
         />
       </View>
 
-      {/* Password input */}
       <View style={styles.inputContainer}>
         <Ionicons
           name="lock-closed-outline"
@@ -96,7 +94,6 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Login button */}
       <TouchableOpacity
         style={styles.button}
         onPress={handleLogin}
@@ -109,10 +106,8 @@ export default function LoginScreen() {
         )}
       </TouchableOpacity>
 
-      {/* Error message */}
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {/* Signup redirect */}
       <View
         style={{
           flexDirection: "row",

@@ -1,7 +1,5 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-// Auth ekranlarını içe aktar
 import LoginScreen from '../screens/AuthScreens/LoginScreen';
 import RegisterScreen from '../screens/AuthScreens/RegisterScreen';
 const Stack = createNativeStackNavigator();

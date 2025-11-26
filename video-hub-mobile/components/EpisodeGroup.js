@@ -9,11 +9,11 @@ export default function EpisodeGroup({
   onToggle, 
   onDownload, 
   onPlay, 
-  serieId 
+  serieId,
+  downloadedIds = [] 
 }) {
   return (
     <View style={styles.container}>
-      {/* Season Header */}
       <TouchableOpacity onPress={onToggle} style={styles.headerRow}>
         <Text style={styles.title}>{title}</Text>
         <Ionicons 
@@ -22,33 +22,31 @@ export default function EpisodeGroup({
           color="white" 
         />
       </TouchableOpacity>
-
-      {/* Episode List */}
       {isExpanded &&
-        episodes.map((episode) => (
-          <View key={episode.id} style={styles.episodeRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.episodeTitle}>{episode.title}</Text>
-              <Text style={styles.duration}>{episode.duration}</Text>
+        episodes.map((episode) => {
+          const isDownloaded = downloadedIds.includes(episode.id);
+
+          return (
+            <View key={episode.id} style={styles.episodeRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.episodeTitle}>{episode.title}</Text>
+                <Text style={styles.duration}>{episode.duration}</Text>
+              </View>
+              
+              <TouchableOpacity onPress={() => onPlay(serieId, episode)}>
+                <Ionicons name="play-circle" size={24} color="#C6A14A" />
+              </TouchableOpacity>
+              
+              <TouchableOpacity onPress={() => onDownload(serieId, episode.id)}>
+                <Ionicons
+                  name={isDownloaded ? "checkmark-circle" : "download-outline"}
+                  size={24}
+                  color={isDownloaded ? "#4CAF50" : "#C6A14A"}
+                />
+              </TouchableOpacity>
             </View>
-
-            {/* Play */}
-            <TouchableOpacity onPress={() => onPlay(serieId, episode)}>
-              <Ionicons name="play-circle" size={24} color="#C6A14A" />
-            </TouchableOpacity>
-
-            {/* Download */}
-            <TouchableOpacity onPress={() => onDownload(serieId, episode.id)}>
-              <Ionicons
-                name={
-                  episode.downloaded ? "checkmark-circle" : "download-outline"
-                }
-                size={24}
-                color={episode.downloaded ? "#4CAF50" : "#C6A14A"}
-              />
-            </TouchableOpacity>
-          </View>
-        ))}
+          );
+        })}
     </View>
   );
 }

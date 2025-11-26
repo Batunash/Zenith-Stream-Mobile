@@ -7,6 +7,7 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,26 +23,34 @@ export default function SerieDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { serieId } = route.params;
-  const { series, toggleDownload } = useLibraryStore();
+  const { series, downloadEpisode, downloads } = useLibraryStore();
   const serie = series.find((s) => s.id === serieId);
+  const downloadedIds = downloads
+    .filter((d) => d.serieId === serieId)
+    .map((d) => d.episodeId);
+  const handleDownload = async (serieId, episodeId) => {
+    if (downloadedIds.includes(episodeId)) {
+        Alert.alert("Bilgi", "Bu bölüm zaten cihazınızda mevcut.");
+        return;
+    }
 
-  // 📥 Bölüm indir
-  const handleDownload = (serieId, episodeId) => {
-    toggleDownload(serieId, episodeId);
+    try {
+      await downloadEpisode(serieId, episodeId);
+      Alert.alert("Başarılı", "İndirme işlemi tamamlandı.");
+    } catch (e) {
+      Alert.alert("Hata", e.message || "İndirme başlatılamadı.");
+    }
   };
 
   const handleEpisodePlay = (serieId, episode) => {
-  console.log("🎬 Episode data:", episode);
-  navigation.navigate("VideoPlayer", {
-    serieId,
-    seasonId: episode.seasonId,
-    episodeId: episode.id,
-    title: episode.title,
-  });
-};
+    navigation.navigate("VideoPlayer", {
+      serieId,
+      seasonId: episode.seasonId,
+      episodeId: episode.id,
+      title: episode.title,
+    });
+  };
 
-
-  // ▶️ Ana “Play” butonu (en son izlenen veya ilk bölümü başlat)
   const handlePlay = () => {
     if (!serie) return;
 
@@ -50,9 +59,8 @@ export default function SerieDetailScreen() {
       .flatMap((sea) =>
         sea.episodes
           .sort((a, b) => a.order - b.order)
-          .map((ep) => ({ ...ep, seasonId: sea.id })) // 🔹 fallback
+          .map((ep) => ({ ...ep, seasonId: sea.id }))
       );
-
     const lastWatched = allEpisodes.find(
       (ep) => ep.progress > 0 && ep.progress < 1
     );
@@ -71,7 +79,7 @@ export default function SerieDetailScreen() {
     return (
       <View style={styles.container}>
         <Text style={{ color: "#fff", textAlign: "center", marginTop: 40 }}>
-          Series not found
+          Dizi bulunamadı.
         </Text>
       </View>
     );
@@ -94,13 +102,13 @@ export default function SerieDetailScreen() {
       <View style={[styles.infoContainer, { width: width }]}>
         <Text style={styles.title}>{serie?.title}</Text>
         <Text style={styles.description}>
-          {serie?.description || "No description available for this series."}
+          {serie?.description || "Açıklama yok."}
         </Text>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.buttonPlay} onPress={handlePlay}>
             <Ionicons name="play-circle" size={20} color="#000000ff" />
-            <Text style={styles.buttonText}>Play</Text>
+            <Text style={styles.buttonText}>Oynat</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -115,6 +123,7 @@ export default function SerieDetailScreen() {
             serieId={serie.id}
             onDownload={handleDownload}
             onPlay={handleEpisodePlay}
+            downloadedIds={downloadedIds} 
           />
         </ScrollView>
       </View>

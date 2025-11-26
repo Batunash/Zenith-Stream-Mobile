@@ -13,13 +13,11 @@ export default function VideoCard({ Height, isSelected, onPress, data }) {
       style={[styles.container, { height: cardHeight, width: cardWidth }]}
       onPress={onPress}
     >
-      {/* 🎬 Dinamik poster */}
       <Image
         source={{ uri: data?.poster }}
         resizeMode="cover"
         style={styles.image}
       />
-      {/* ✅ Seçim overlay (isteğe bağlı) */}
       {isSelected && (
         <>
           <View style={styles.overlay} />
