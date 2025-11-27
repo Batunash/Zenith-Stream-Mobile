@@ -1,0 +1,102 @@
+{
+  "common": {
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "save": "Save",
+    "connect": "Connect",
+    "or": "OR",
+    "back": "Back",
+    "loading": "Loading...",
+    "delete": "Delete",
+    "unknown": "Unknown",
+    "play": "Play",
+    "see_all": "See All",
+    "restart_error": "Could not restart."
+  },
+  "auth": {
+    "login_title": "Login to Your Account",
+    "register_title": "Create Your Account",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "login_button": "Log in",
+    "register_button": "Sign Up",
+    "signup_prompt": "Don't have an account?",
+    "signup_link": "Sign up",
+    "login_prompt": "Already have an account?",
+    "login_link": "Log in",
+    "empty_fields_error": "Please enter your email and password."
+  },
+  "connection": {
+    "title": "Connect to Video Hub",
+    "instruction": "Scan the QR code found in the 'Settings' menu of your desktop application.",
+    "scan_btn": "📷 Scan QR Code",
+    "manual_label": "Enter Manual IP Address:",
+    "camera_permission_denied": "Camera permission denied",
+    "camera_overlay_text": "Scan the QR code from the desktop app",
+    "invalid_url": "Please enter a valid server address or scan a QR code.",
+    "invalid_qr": "Invalid QR Code",
+    "read_error": "Could not read QR Code",
+    "save_error": "Save error",
+    "load_error": "Load error"
+  },
+  "main": {
+    "offline_list": "No Connection. Showing saved list.",
+    "offline_downloads": "No Connection. You can watch downloaded items.",
+    "library_loading": "Library loading...",
+    "no_series": "No series yet.",
+    "refresh": "Refresh",
+    "downloads": "Downloads",
+    "my_list": "My List",
+    "unknown_title": "Unknown Title"
+  },
+  "player": {
+    "server_url_missing": "Server URL not found",
+    "connection_error": "Server connection error",
+    "video_preparing": "Preparing video...",
+    "playback_error": "An error occurred: {{error}}"
+  },
+  "detail": {
+    "episodes_header": "Episodes",
+    "description_missing": "No description.",
+    "download_exists_title": "Info",
+    "download_exists_msg": "This episode is already on your device.",
+    "download_success_title": "Success",
+    "download_success_msg": "Download completed.",
+    "download_fail_title": "Error",
+    "download_fail_msg": "Download could not be started.",
+    "not_found": "Series not found.",
+    "play": "Play"
+  },
+  "create_list": {
+    "title": "Create Category",
+    "category_name_placeholder": "Category Name",
+    "create_btn": "Create",
+    "error_name": "Please enter a category name.",
+    "error_select": "Please select at least one series."
+  },
+  "settings": {
+    "title": "Settings",
+    "section_server": "Server & Connection",
+    "section_storage": "Storage",
+    "section_app": "Application",
+    "server_address": "Server Address",
+    "change_server": "Change Server (Scan QR)",
+    "change_server_sub": "Changes server without logging out",
+    "clear_downloads": "Clear Downloads",
+    "videos_downloaded": "{{count}} videos downloaded",
+    "logout": "Log Out",
+    "logout_confirm_msg": "Do you want to log out of your account?",
+    "disconnect_title": "Disconnect Server",
+    "disconnect_msg": "Server address will be deleted and you will return to the QR scan screen. Your session will remain open.",
+    "disconnect_btn": "Disconnect",
+    "clear_cache_title": "Delete Downloads",
+    "clear_cache_msg": "All downloaded videos on the device will be deleted. Are you sure?",
+    "library_cleared": "Library cleared."
+  },
+  "list": {
+    "empty_title": "No series found.",
+    "empty_sub": "Try adding or downloading one."
+  }
+}

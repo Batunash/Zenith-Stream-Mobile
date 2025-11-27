@@ -14,15 +14,18 @@ import { useNavigation } from "@react-navigation/native";
 import VideoCard from "../../components/VideoCard";
 import Footer from "../../components/Footer";
 import { useLibraryStore } from "../../store/useLibraryStore";
+import { useTranslation } from "react-i18next"; 
 
 const { width, height } = Dimensions.get("window");
 
 export default function CreateHorizontalViewScreen() {
+  const { t } = useTranslation(); 
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { series, addList } = useLibraryStore();
   const [categoryName, setCategoryName] = useState("");
   const [selectedSeries, setSelectedSeries] = useState([]);
+
   const handleSelectSerie = (serieId) => {
     setSelectedSeries((current) =>
       current.includes(serieId)
@@ -30,19 +33,21 @@ export default function CreateHorizontalViewScreen() {
         : [...current, serieId]
     );
   };
+
   const handleCreateList = () => {
     if (!categoryName.trim()) {
-      alert("Please enter a category name.");
+      alert(t('create_list.error_name')); 
       return;
     }
     if (selectedSeries.length === 0) {
-      alert("Please select at least one series.");
+      alert(t('create_list.error_select')); 
       return;
     }
 
     addList({ title: categoryName, seriesIds: selectedSeries });
     navigation.goBack();
   };
+
   const handleGoBack = () => {
     navigation.goBack();
   };
@@ -58,7 +63,7 @@ export default function CreateHorizontalViewScreen() {
         <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
           <Ionicons name="arrow-back-outline" size={32} color="#ffffff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create Category</Text>
+        <Text style={styles.headerTitle}>{t('create_list.title')}</Text>
       </View>
       <View style={styles.inputContainer}>
         <Ionicons
@@ -69,7 +74,7 @@ export default function CreateHorizontalViewScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Category Name"
+          placeholder={t('create_list.category_name_placeholder')} 
           placeholderTextColor="#aaa"
           value={categoryName}
           onChangeText={setCategoryName}
@@ -92,7 +97,7 @@ export default function CreateHorizontalViewScreen() {
       </ScrollView>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.createButton} onPress={handleCreateList}>
-          <Text style={styles.buttonText}>Create</Text>
+          <Text style={styles.buttonText}>{t('create_list.create_btn')}</Text>
         </TouchableOpacity>
       </View>
 

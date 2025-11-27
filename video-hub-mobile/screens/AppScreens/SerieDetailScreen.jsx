@@ -15,10 +15,11 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import Footer from "../../components/Footer";
 import EpisodeAccordion from "../../components/EpisodeAccordion";
 import { useLibraryStore } from "../../store/useLibraryStore";
-
+import { useTranslation } from "react-i18next";
 const { width, height } = Dimensions.get("window");
 
 export default function SerieDetailScreen() {
+  const { t } = useTranslation(); 
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
@@ -28,17 +29,18 @@ export default function SerieDetailScreen() {
   const downloadedIds = downloads
     .filter((d) => d.serieId === serieId)
     .map((d) => d.episodeId);
+
   const handleDownload = async (serieId, episodeId) => {
     if (downloadedIds.includes(episodeId)) {
-        Alert.alert("Bilgi", "Bu bölüm zaten cihazınızda mevcut.");
+        Alert.alert(t('detail.download_exists_title'), t('detail.download_exists_msg'));
         return;
     }
 
     try {
       await downloadEpisode(serieId, episodeId);
-      Alert.alert("Başarılı", "İndirme işlemi tamamlandı.");
+      Alert.alert(t('detail.download_success_title'), t('detail.download_success_msg'));
     } catch (e) {
-      Alert.alert("Hata", e.message || "İndirme başlatılamadı.");
+      Alert.alert(t('detail.download_fail_title'), e.message || t('detail.download_fail_msg'));
     }
   };
 
@@ -79,7 +81,7 @@ export default function SerieDetailScreen() {
     return (
       <View style={styles.container}>
         <Text style={{ color: "#fff", textAlign: "center", marginTop: 40 }}>
-          Dizi bulunamadı.
+          {t('detail.not_found')}
         </Text>
       </View>
     );
@@ -102,13 +104,13 @@ export default function SerieDetailScreen() {
       <View style={[styles.infoContainer, { width: width }]}>
         <Text style={styles.title}>{serie?.title}</Text>
         <Text style={styles.description}>
-          {serie?.description || "Açıklama yok."}
+          {serie?.description || t('detail.description_missing')}
         </Text>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.buttonPlay} onPress={handlePlay}>
             <Ionicons name="play-circle" size={20} color="#000000ff" />
-            <Text style={styles.buttonText}>Oynat</Text>
+            <Text style={styles.buttonText}>{t('detail.play')}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -7,9 +7,9 @@ const { width } = Dimensions.get('window');
 
 const Footer = () => {
   const navigation = useNavigation();
-  const route = useRoute(); // şu anki aktif route bilgisini verir
+  const route = useRoute(); 
 
-  const currentRoute = route.name; // örnek: "Home", "Downloads", "Profile"
+  const currentRoute = route.name;
 
   return (
     <View style={styles.container}>

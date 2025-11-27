@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, View, Platform, ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { VideoView, useVideoPlayer } from "expo-video";
@@ -10,22 +10,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLibraryStore } from "../../store/useLibraryStore";
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
 import api from "../../lib/api";
+import { useKeepAwake } from 'expo-keep-awake'; 
+import { useTranslation } from "react-i18next"; 
 
 export default function VideoScreen() {
+  const { t } = useTranslation(); 
+  useKeepAwake();
   const insets = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
-  const { serieId, seasonId = "s1", episodeId } = route.params || {};
+  const { serieId, episodeId } = route.params || {};
   const { downloads, markProgress, markRecentlyWatched, series } = useLibraryStore();
   const [serverUrl, setServerUrl] = useState(null);
   const [isReady, setIsReady] = useState(false);
-  const [didSeek, setDidSeek] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1.0); // Hız takibi için state
-  const [showControls, setShowControls] = useState(true); // Kontrolleri gizleyip açmak için
+  const [error, setError] = useState(null); 
+  const didSeekRef = useRef(false); 
   const serie = series.find((s) => s.id === serieId);
   const episode = serie?.seasons?.flatMap((sea) => sea.episodes)?.find((ep) => ep.id === episodeId);
   const resumeProgress = episode?.progress || 0;
   const downloadedItem = downloads.find(d => d.episodeId === episodeId);
+
   useEffect(() => {
     const loadServerUrl = async () => {
       if (downloadedItem) {
@@ -38,6 +42,7 @@ export default function VideoScreen() {
         else console.warn("Sunucu URL bulunamadı");
       } catch (e) {
         console.error("URL okuma hatası", e);
+        setError(t('player.connection_error'));
       } finally {
         setIsReady(true);
       }
@@ -48,73 +53,60 @@ export default function VideoScreen() {
   const videoUri = downloadedItem 
     ? downloadedItem.localPath 
     : (serverUrl ? `${serverUrl}/stream/${episodeId}` : null);
+
   const player = useVideoPlayer(videoUri, (p) => {
     if (videoUri) {
         p.loop = false;
         p.timeUpdateEventInterval = 1;
-        p.preservesPitch = true; 
+        p.preservesPitch = true;
+        p.playsInSilentModeIOS = true; 
         p.play();
     }
   });
 
-  const cyclePlaybackSpeed = () => {
-    const speeds = [1.0, 1.25, 1.5, 2.0];
-    const currentIndex = speeds.indexOf(playbackSpeed);
-    const nextSpeed = speeds[(currentIndex + 1) % speeds.length];
-    if (player) {
-      player.playbackRate = nextSpeed;
-      player.preservesPitch = true; 
-      setPlaybackSpeed(nextSpeed);
-    }
-  };
   useEffect(() => {
     if (!player || !videoUri) return;
-
-    const sub = player.addListener("timeUpdate", async ({ currentTime, duration }) => {
-      if (!duration) return;
-      const progress = currentTime / duration;
+    const sub = player.addListener("timeUpdate", async ({ currentTime, duration = 0 }) => { 
+      const safeDuration = duration || 0;
+      if (safeDuration <= 0) return;
+      const progress = currentTime / safeDuration;
       markProgress(serieId, episodeId, progress);
-      if (!didSeek && resumeProgress > 0.01 && resumeProgress < 0.98 && duration > 0) {
-        const seekTime = duration * resumeProgress;
-        console.log(`⏩ Resume to ${Math.floor(resumeProgress * 100)}% (${seekTime.toFixed(1)}s)`);
-        setDidSeek(true); 
+      if (!didSeekRef.current && resumeProgress > 0.02 && resumeProgress < 0.95) {
+        const seekTime = safeDuration * resumeProgress;
+        console.log(`⏩ Resume tetiklendi: ${seekTime.toFixed(1)}sn`);
+        
         player.seekTo(seekTime);
+        didSeekRef.current = true; 
       }
       if (!downloadedItem && Math.floor(currentTime) % 5 === 0) {
         try {
-          await api.put(`/episode/${episodeId}/progress`, { progress });
+          api.put(`/episode/${episodeId}/progress`, { progress }).catch(() => {});
         } catch (err) {}
       }
     });
 
-    const endSub = player.addListener("ended", () => {
+    const endSub = player.addListener("playToEnd", () => {
       markProgress(serieId, episodeId, 1);
       markRecentlyWatched({ serieId, episodeId });
+      navigation.goBack();
     });
 
     return () => {
       sub.remove();
       endSub.remove();
     };
-  }, [player, resumeProgress, videoUri, didSeek]);
+  }, [player, resumeProgress, videoUri]); 
+
   useEffect(() => {
-    let timeout;
-    
     (async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
       if (Platform.OS === "android") {
         await NavigationBar.setVisibilityAsync("hidden");
+        await NavigationBar.setBehaviorAsync('overlay-swipe');
       }
     })();
-    const resetControlTimeout = () => {
-        setShowControls(true);
-        clearTimeout(timeout);
-        timeout = setTimeout(() => setShowControls(false), 4000); // 4 saniye sonra gizle
-    };
-    resetControlTimeout();
 
     return () => {
-      clearTimeout(timeout);
       (async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
         if (Platform.OS === "android") {
@@ -124,11 +116,22 @@ export default function VideoScreen() {
     };
   }, []);
 
+  if (error) {
+     return (
+      <View style={[styles.container, styles.center]}>
+        <Text style={{color: 'white', marginBottom: 20}}>{t('player.playback_error', {error})}</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{padding: 10, backgroundColor: '#333', borderRadius: 5}}>
+            <Text style={{color: 'white'}}>{t('common.back')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   if (!isReady || (!videoUri && !downloadedItem && !serverUrl)) {
     return (
       <View style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color="#C6A14A" />
-        <Text style={{color: 'white', marginTop: 10}}>Video hazırlanıyor...</Text>
+        <Text style={{color: 'white', marginTop: 10}}>{t('player.video_preparing')}</Text>
       </View>
     );
   }
@@ -145,23 +148,15 @@ export default function VideoScreen() {
       <VideoView
         style={styles.video}
         player={player}
-        fullscreenOptions={{ enabled: true }}
         contentFit="contain" 
         nativeControls={true} 
+        allowsFullscreen={true}
+        startsPictureInPictureAutomatically={false}
       />
-      <View style={styles.overlayContainer} pointerEvents="box-none">
-        <TouchableOpacity 
-            style={styles.speedButton} 
-            onPress={cyclePlaybackSpeed}
-            activeOpacity={0.7}
-        >
-            <Ionicons name="speedometer-outline" size={20} color="black" />
-            <Text style={styles.speedText}>{playbackSpeed}x</Text>
-        </TouchableOpacity>
-      </View>
       <TouchableOpacity 
         style={styles.backButton} 
         onPress={() => navigation.goBack()}
+        hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}
       >
         <Ionicons name="arrow-back" size={28} color="white" />
       </TouchableOpacity>
@@ -177,38 +172,14 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%", 
     height: "100%",
-    alignSelf: "center",
-  },
-  overlayContainer: {
-    ...StyleSheet.absoluteFillObject, 
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    padding: 20,
-    zIndex: 10,
-  },
-  speedButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(198, 161, 74, 0.9)', 
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    marginTop: 10,
-    marginRight: 10, 
-  },
-  speedText: {
-    color: 'black',
-    fontWeight: 'bold',
-    marginLeft: 5,
-    fontSize: 16
   },
   backButton: {
     position: 'absolute',
-    top: 20,
-    left: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    top: 30,
+    left: 30,
+    backgroundColor: 'rgba(0,0,0,0.5)', 
     borderRadius: 20,
     padding: 8,
-    zIndex: 20
+    zIndex: 999, 
   }
 });

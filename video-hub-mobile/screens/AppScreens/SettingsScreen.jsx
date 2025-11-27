@@ -8,21 +8,24 @@ import { useLibraryStore } from "../../store/useLibraryStore";
 import Footer from "../../components/Footer";
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates'; 
+import { useTranslation } from "react-i18next"; 
 
 export default function SettingsScreen() {
+  const { t } = useTranslation(); 
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuthStore();
   const { clearAll, downloads } = useLibraryStore();
   const [serverUrl, setServerUrl] = useState("");
 
   useEffect(() => {
-    AsyncStorage.getItem("server-url").then((url) => setServerUrl(url || "Bilinmiyor"));
+    AsyncStorage.getItem("server-url").then((url) => setServerUrl(url || t('common.unknown')));
   }, []);
+
   const handleLogout = () => {
-    Alert.alert("Çıkış Yap", "Hesabınızdan çıkış yapmak istiyor musunuz?", [
-      { text: "İptal", style: "cancel" },
+    Alert.alert(t('settings.logout'), t('settings.logout_confirm_msg'), [
+      { text: t('common.cancel'), style: "cancel" },
       { 
-          text: "Çıkış Yap", 
+          text: t('settings.logout'), 
           style: "destructive", 
           onPress: async () => {
               logout(); 
@@ -30,18 +33,19 @@ export default function SettingsScreen() {
       },
     ]);
   };
+
   const handleDisconnectServer = async () => {
-    Alert.alert("Sunucu Bağlantısını Kes", "Sunucu adresi silinecek ve QR tarama ekranına dönülecek. Oturumunuz açık kalacaktır.", [
-      { text: "İptal", style: "cancel" },
+    Alert.alert(t('settings.disconnect_title'), t('settings.disconnect_msg'), [
+      { text: t('common.cancel'), style: "cancel" },
       { 
-        text: "Bağlantıyı Kes", 
+        text: t('settings.disconnect_btn'), 
         style: "destructive", 
         onPress: async () => {
             try {
                 await AsyncStorage.removeItem("server-url");
                 await Updates.reloadAsync();
             } catch (error) {
-                Alert.alert("Hata", "Yeniden başlatılamadı, lütfen uygulamayı kapatıp açın.");
+                Alert.alert(t('common.error'), t('common.restart_error'));
             }
         }
       },
@@ -49,14 +53,14 @@ export default function SettingsScreen() {
   };
 
   const handleClearCache = () => {
-    Alert.alert("İndirilenleri Sil", "Cihazdaki tüm indirilen videolar silinecek. Emin misiniz?", [
-      { text: "İptal", style: "cancel" },
+    Alert.alert(t('settings.clear_cache_title'), t('settings.clear_cache_msg'), [
+      { text: t('common.cancel'), style: "cancel" },
       { 
-        text: "Sil", 
+        text: t('common.delete'), 
         style: "destructive", 
         onPress: () => {
             clearAll();
-            Alert.alert("Başarılı", "Kütüphane temizlendi.");
+            Alert.alert(t('common.success'), t('settings.library_cleared'));
         }
       },
     ]);
@@ -78,7 +82,7 @@ export default function SettingsScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Ayarlar</Text>
+        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -88,42 +92,42 @@ export default function SettingsScreen() {
                 <Text style={styles.avatarText}>{user?.username?.charAt(0).toUpperCase() || "U"}</Text>
             </View>
             <View>
-                <Text style={styles.username}>{user?.username || "Kullanıcı"}</Text>
+                <Text style={styles.username}>{user?.username || t('common.unknown')}</Text>
             </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Sunucu & Bağlantı</Text>
+        <Text style={styles.sectionTitle}>{t('settings.section_server')}</Text>
         <View style={styles.section}>
             <SettingItem 
                 icon="server-outline" 
-                title="Sunucu Adresi" 
+                title={t('settings.server_address')} 
                 subtitle={serverUrl}
                 onPress={() => {}} 
             />
             <SettingItem 
                 icon="qr-code-outline" 
-                title="Sunucu Değiştir (QR Tara)" 
-                subtitle="Oturumu kapatmadan sunucu değiştirir"
+                title={t('settings.change_server')} 
+                subtitle={t('settings.change_server_sub')}
                 onPress={handleDisconnectServer}
                 danger
             />
         </View>
 
-        <Text style={styles.sectionTitle}>Depolama</Text>
+        <Text style={styles.sectionTitle}>{t('settings.section_storage')}</Text>
         <View style={styles.section}>
             <SettingItem 
                 icon="trash-bin-outline" 
-                title="İndirilenleri Temizle" 
-                subtitle={`${downloads.length} video indirildi`}
+                title={t('settings.clear_downloads')} 
+                subtitle={t('settings.videos_downloaded', { count: downloads.length })}
                 onPress={handleClearCache}
             />
         </View>
 
-        <Text style={styles.sectionTitle}>Uygulama</Text>
+        <Text style={styles.sectionTitle}>{t('settings.section_app')}</Text>
         <View style={styles.section}>
             <SettingItem 
                 icon="log-out-outline" 
-                title="Çıkış Yap" 
+                title={t('settings.logout')} 
                 onPress={handleLogout}
             />
         </View>

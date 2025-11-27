@@ -16,23 +16,21 @@ import HorizontalList from "../../components/HorizontalList";
 import Footer from "../../components/Footer";
 import { useNavigation } from "@react-navigation/native";
 import { useLibraryStore } from "../../store/useLibraryStore";
+import { useTranslation } from "react-i18next"; 
 
 export default function MainScreen() {
+  const { t } = useTranslation(); 
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();  
   const { lists, series, fetchSeries, isLoading, error } = useLibraryStore();
   const firstSerie = series?.[0];
-  const isOffline = !!error || (error && (
-      error.includes("Network") || 
-      error.includes("Sunucu") || 
-      error.includes("timeout") ||
-      error.includes("Bağlantı")
-  ));
+    const isOffline = !!error; 
 
   useEffect(() => {
     fetchSeries();
   }, []);
+  
   const onRefresh = useCallback(() => {
     fetchSeries();
   }, [fetchSeries]);
@@ -63,7 +61,7 @@ export default function MainScreen() {
     navigation.navigate("SerieDetailScreen", { serieId });
   
   const handleDownloads = () =>
-    navigation.navigate("DownloadsScreen", { headerTitle: "Downloads" });
+    navigation.navigate("DownloadsScreen", { headerTitle: t('main.downloads') });
 
   return (
     <View
@@ -81,25 +79,26 @@ export default function MainScreen() {
             <Ionicons name="cloud-offline" size={20} color="white" />
             <Text style={styles.offlineText}>
                 {series.length > 0 
-                  ? "Bağlantı Yok. Kayıtlı liste gösteriliyor." 
-                  : "Bağlantı Yok. İndirilenleri izleyebilirsiniz."}
+                  ? t('main.offline_list') 
+                  : t('main.offline_downloads')}
             </Text>
             <Ionicons name="chevron-forward" size={16} color="white" />
         </TouchableOpacity>
       )}
+      
       {isLoading && !series.length && (
           <View style={styles.center}>
              <ActivityIndicator size="large" color="#C6A14A" />
-             <Text style={{ color: "#fff", marginTop: 10 }}>Kütüphane yükleniyor...</Text>
+             <Text style={{ color: "#fff", marginTop: 10 }}>{t('main.library_loading')}</Text>
           </View>
       )}
 
       {!isLoading && !series.length && !isOffline && (
         <View style={styles.center}>
-            <Text style={{ color: "#aaa", marginBottom: 20 }}>Henüz hiç dizi yok.</Text>
+            <Text style={{ color: "#aaa", marginBottom: 20 }}>{t('main.no_series')}</Text>
             <TouchableOpacity onPress={fetchSeries} style={styles.reloadBtn}>
                 <Ionicons name="refresh" size={24} color="#C6A14A" />
-                <Text style={{ color: "#C6A14A", marginLeft: 6, fontWeight: 'bold' }}>Yenile</Text>
+                <Text style={{ color: "#C6A14A", marginLeft: 6, fontWeight: 'bold' }}>{t('main.refresh')}</Text>
             </TouchableOpacity>
         </View>
       )}

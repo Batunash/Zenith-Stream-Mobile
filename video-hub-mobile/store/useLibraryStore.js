@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { downloadEpisodeService } from "../services/downloadService";
 import api from "../lib/api";
+import i18n from "../i18n";
 
 export const useLibraryStore = create(
   persist(
@@ -22,7 +23,7 @@ export const useLibraryStore = create(
           const res = await api.get("/series");
           set({ series: res.data.series, isLoading: false });
         } catch (err) {
-          set({ isLoading: false, error: "Veri yüklenemedi" });
+          set({ isLoading: false, error: i18n.t("player.connection_error") });
         }
       },
       addList: ({ title, seriesIds }) => {
@@ -64,7 +65,7 @@ export const useLibraryStore = create(
           return localPath;
         } catch (err) {
           console.error("Store Download Hatası:", err);
-          set({ isDownloading: false, error: err.message });
+          set({ isDownloading: false, error: i18n.t("detail.download_fail_msg") });
           throw err;
         }
       },

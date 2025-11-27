@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { View, Image,ImageBackground, StyleSheet,Dimensions,Text,TouchableOpacity} from 'react-native';
+import React from "react";
+import { View, Image, ImageBackground, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next"; 
 const { width, height } = Dimensions.get("window");
 
-export default function HeroSection({data,onComponentPress, onPlayPress}){
+export default function HeroSection({data, onComponentPress, onPlayPress}){
+    const { t } = useTranslation();
     const logosize = width*0.20;
     return(
         <TouchableOpacity style={[styles.container, { height: height * 0.33 }]} onPress={onComponentPress}>
@@ -11,10 +13,10 @@ export default function HeroSection({data,onComponentPress, onPlayPress}){
                   <View style={styles.overlay} />
                       <Image source={require('../assets/logo.png')} style={[styles.logo,{width: logosize, height: logosize}]} />
                   <View style={styles.content}>
-                      <Text style={styles.headerText}>{data?.title || 'Unknown Title'}</Text>
+                      <Text style={styles.headerText}>{data?.title || t('main.unknown_title')}</Text>
                       <TouchableOpacity style={styles.buttonPlay} onPress={() => onPlayPress(data.id)}>
                           <Ionicons name="play-circle" size={20} color="#000000ff" />
-                          <Text style={styles.buttonText}>Play</Text>
+                          <Text style={styles.buttonText}>{t('detail.play')}</Text>
                       </TouchableOpacity>
                   </View>
               </ImageBackground>

@@ -13,10 +13,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useTranslation } from "react-i18next"; 
 
 const { width, height } = Dimensions.get("window");
 
 export default function LoginScreen() {
+  const { t } = useTranslation(); 
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
@@ -31,7 +33,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Please enter your email and password.");
+      alert(t('auth.empty_fields_error')); 
       return;
     }
     await login(email, password);
@@ -50,7 +52,7 @@ export default function LoginScreen() {
         resizeMode="contain"
       />
 
-      <Text style={styles.text}>Login to Your Account</Text>
+      <Text style={styles.text}>{t('auth.login_title')}</Text>
 
       <View style={styles.inputContainer}>
         <Ionicons
@@ -61,7 +63,7 @@ export default function LoginScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t('auth.email_placeholder')} 
           placeholderTextColor="#aaa"
           value={email}
           onChangeText={setEmail}
@@ -79,7 +81,7 @@ export default function LoginScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder={t('auth.password_placeholder')} 
           placeholderTextColor="#aaa"
           value={password}
           onChangeText={setPassword}
@@ -102,7 +104,7 @@ export default function LoginScreen() {
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Log in</Text>
+          <Text style={styles.buttonText}>{t('auth.login_button')}</Text>
         )}
       </TouchableOpacity>
 
@@ -115,7 +117,7 @@ export default function LoginScreen() {
           marginTop: height * 0.015,
         }}
       >
-        <Text style={styles.text}>Don't have an account? </Text>
+        <Text style={styles.text}>{t('auth.signup_prompt')} </Text>
         <TouchableOpacity onPress={handleSignupButton}>
           <Text
             style={[
@@ -123,7 +125,7 @@ export default function LoginScreen() {
               { color: "#C6A14A", fontWeight: "bold" },
             ]}
           >
-            Sign up
+            {t('auth.signup_link')}
           </Text>
         </TouchableOpacity>
       </View>

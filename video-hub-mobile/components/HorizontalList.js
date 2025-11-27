@@ -8,10 +8,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import VideoCard from "./VideoCard";
+import { useTranslation } from "react-i18next"; 
 
 const { width, height } = Dimensions.get("window");
 
 export default function HorizontalList({ title, data = [], onSeeAll, onCardPress }) {
+  const { t } = useTranslation(); 
   const HorizontalListHeight = height * 0.33;
 
   if (!Array.isArray(data) || data.length === 0) return null;
@@ -49,10 +51,10 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
         <TouchableOpacity
           onPress={handleSeeAll}
           activeOpacity={0.7}
-          accessibilityLabel={`See all series in ${title}`}
+          accessibilityLabel="See all"
           accessibilityRole="button"
         >
-          <Text style={styles.seeAll}>See All</Text>
+          <Text style={styles.seeAll}>{t('common.see_all')}</Text>
         </TouchableOpacity>
       </View>
       <FlatList

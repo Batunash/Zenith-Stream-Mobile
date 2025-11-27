@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import EpisodeGroup from "./EpisodeGroup";
+import { useTranslation } from "react-i18next"; 
 
 export default function EpisodeAccordion({ seasons, serieId, onDownload, onPlay, downloadedIds }) {
+  const { t } = useTranslation(); 
   const [expandedId, setExpandedId] = useState(null);
 
   const handleToggle = (id) => {
@@ -11,7 +13,7 @@ export default function EpisodeAccordion({ seasons, serieId, onDownload, onPlay,
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Bölümler</Text>
+      <Text style={styles.header}>{t('detail.episodes_header')}</Text>
       {seasons.map((season) => (
         <EpisodeGroup
           key={season.id}
@@ -28,7 +30,6 @@ export default function EpisodeAccordion({ seasons, serieId, onDownload, onPlay,
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -10,12 +10,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLibraryStore } from "../store/useLibraryStore";
-
+import { useTranslation } from "react-i18next"; 
 const { width } = Dimensions.get("window");
 
 export default function Serie({ serie, onSeriePress, onPlayPress, showDownloadedEpisodes }) {
   const { toggleDownload } = useLibraryStore();
-
+  const { t } = useTranslation(); 
   const handleDeleteEpisode = (episodeId) => {
     toggleDownload(serie.id, episodeId);
   };
@@ -29,7 +29,7 @@ export default function Serie({ serie, onSeriePress, onPlayPress, showDownloaded
       <View style={styles.info}>
         <Text style={styles.title}>{serie.title}</Text>
         <Text style={styles.desc} numberOfLines={2}>
-          {serie.description || "No description"}
+          {serie.description || t('detail.description_missing')}      
         </Text>
       </View>
       {showDownloadedEpisodes && serie.downloadedEpisodes && (

@@ -13,10 +13,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuthStore } from "../../store/useAuthStore";
-
+import { useTranslation } from "react-i18next"; 
 const { width, height } = Dimensions.get("window");
 
 export default function RegisterScreen() {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -32,7 +33,7 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!email || !password) {
-      alert("Please enter your email and password.");
+      alert(t('auth.empty_fields_error')); 
       return;
     }
     await register(email, password);
@@ -51,7 +52,7 @@ export default function RegisterScreen() {
         resizeMode="contain"
       />
 
-      <Text style={styles.text}>Create Your Account</Text>
+      <Text style={styles.text}>{t('auth.register_title')}</Text>
 
       <View style={styles.inputContainer}>
         <Ionicons
@@ -62,7 +63,7 @@ export default function RegisterScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t('auth.email_placeholder')} 
           placeholderTextColor="#aaa"
           value={email}
           onChangeText={setEmail}
@@ -80,7 +81,7 @@ export default function RegisterScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder={t('auth.password_placeholder')} 
           placeholderTextColor="#aaa"
           value={password}
           onChangeText={setPassword}
@@ -103,7 +104,7 @@ export default function RegisterScreen() {
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Text style={styles.buttonText}>{t('auth.register_button')}</Text>
         )}
       </TouchableOpacity>
 
@@ -115,7 +116,7 @@ export default function RegisterScreen() {
           marginTop: height * 0.015,
         }}
       >
-        <Text style={styles.text}>Already have an account? </Text>
+        <Text style={styles.text}>{t('auth.login_prompt')} </Text>
         <TouchableOpacity onPress={handleSigninButton}>
           <Text
             style={[
@@ -123,7 +124,7 @@ export default function RegisterScreen() {
               { color: "#C6A14A", fontWeight: "bold" },
             ]}
           >
-            Log in
+            {t('auth.login_link')}
           </Text>
         </TouchableOpacity>
       </View>

@@ -6,23 +6,23 @@ import {
   Dimensions,
   TouchableOpacity,
   Text,
-  useWindowDimensions
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Serie from "../../components/Serie";
 import Footer from "../../components/Footer";
-
+import { useTranslation } from "react-i18next"; 
 const { width } = Dimensions.get("window");
 
 export default function BaseListScreen({
-  headerTitle = "My List",
+  headerTitle,
   listData = [],
   onSeriePress,
   onPlayPress,
   showDownloadedEpisodes = false,
 }) {
+  const { t } = useTranslation(); 
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -32,8 +32,8 @@ export default function BaseListScreen({
 
   const renderEmpty = useCallback(() => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No series found.</Text>
-      <Text style={styles.emptySub}>Try adding or downloading one.</Text>
+      <Text style={styles.emptyText}>{t('list.empty_title')}</Text>
+      <Text style={styles.emptySub}>{t('list.empty_sub')}</Text>
     </View>
   ), []);
 
@@ -67,7 +67,7 @@ export default function BaseListScreen({
           <Ionicons name="arrow-back-outline" size={32} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.header} numberOfLines={1}>
-          {headerTitle}
+          {headerTitle || t('main.my_list')} 
         </Text>
       </View>
       <FlatList

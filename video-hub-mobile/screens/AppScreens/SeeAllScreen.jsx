@@ -2,8 +2,9 @@ import React from "react";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useLibraryStore } from "../../store/useLibraryStore";
 import BaseListScreen from "./BaseListScreen";
-
+import { useTranslation } from "react-i18next"; 
 export default function SeeAllScreen() {
+  const { t } = useTranslation(); 
   const route = useRoute();
   const navigation = useNavigation();
   const { listId } = route.params || {};
@@ -14,6 +15,7 @@ export default function SeeAllScreen() {
     list?.seriesIds
       .map((id) => series.find((s) => s.id === id))
       .filter(Boolean) || [];
+      
   const handleSeriePress = (serieId) => {
     navigation.navigate("SerieDetailScreen", { serieId });
   };
@@ -29,7 +31,7 @@ export default function SeeAllScreen() {
 
   return (
     <BaseListScreen
-      headerTitle={list?.title || "My List"}
+      headerTitle={list?.title || t('main.my_list')} 
       listData={mySeries}
       onSeriePress={handleSeriePress}
       onPlayPress={handlePlay}

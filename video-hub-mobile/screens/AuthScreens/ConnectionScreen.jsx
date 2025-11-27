@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTranslation } from "react-i18next"; 
 
 export default function ConnectionScreen({ onConnectionSuccess }) {
+  const { t } = useTranslation(); 
   const [url, setUrl] = useState(""); 
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
@@ -24,10 +26,11 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
     };
     checkLastConnection();
   }, []);
+
   const handleSave = async (scannedUrl = null) => {
     const targetUrl = scannedUrl || url;
       if (!targetUrl || !targetUrl.startsWith("http")) {
-      Alert.alert("Hata", "Lütfen geçerli bir sunucu adresi girin veya QR kod taratın.");
+      Alert.alert(t('common.error'), t('connection.invalid_url'));
       return;
     }
     
@@ -38,8 +41,10 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
       }
     } catch (e) {
       console.error("Kaydetme hatası:", e);
+      Alert.alert(t('common.error'), t('connection.save_error'));
     }
   };
+
   const handleBarCodeScanned = ({ data }) => {
     setShowCamera(false);
     try {
@@ -48,14 +53,14 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
             const fullUrl = parsed.url.endsWith('/api') ? parsed.url : `${parsed.url}/api`;
             handleSave(fullUrl);
         } else {
-            Alert.alert("Hata", "Geçersiz QR Kodu");
+            Alert.alert(t('common.error'), t('connection.invalid_qr'));
         }
     } catch (e) {
         if (data.startsWith("http")) {
              const fullUrl = data.endsWith('/api') ? data : `${data}/api`;
              handleSave(fullUrl);
         } else {
-             Alert.alert("Hata", "QR Kodu okunamadı.");
+             Alert.alert(t('common.error'), t('connection.read_error'));
         }
     }
   };
@@ -63,7 +68,10 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
   const openCamera = async () => {
       if (!permission?.granted) {
           const { granted } = await requestPermission();
-          if (!granted) return;
+          if (!granted) {
+            Alert.alert(t('common.error'), t('connection.camera_permission_denied'));
+            return;
+          }
       }
       setShowCamera(true);
   };
@@ -77,11 +85,11 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
             barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
         />
         <TouchableOpacity style={styles.closeBtn} onPress={() => setShowCamera(false)}>
-            <Text style={{color:'white', fontWeight:'bold'}}>İptal</Text>
+            <Text style={{color:'white', fontWeight:'bold'}}>{t('common.cancel')}</Text>
         </TouchableOpacity>
         
         <View style={styles.cameraOverlay}>
-            <Text style={styles.cameraText}>Masaüstü uygulamasındaki QR kodu okutun</Text>
+            <Text style={styles.cameraText}>{t('connection.camera_overlay_text')}</Text>
         </View>
       </View>
     );
@@ -89,22 +97,22 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Video Hub'a Bağlan</Text>
+      <Text style={styles.title}>{t('connection.title')}</Text>
       <Text style={styles.sub}>
-        Masaüstü uygulamanızdaki "Ayarlar" menüsünde bulunan QR kodu taratın.
+        {t('connection.instruction')}
       </Text>
 
       <TouchableOpacity style={styles.cameraBtn} onPress={openCamera}>
-        <Text style={styles.cameraBtnText}>📷 QR Kodu Tara</Text>
+        <Text style={styles.cameraBtnText}>{t('connection.scan_btn')}</Text>
       </TouchableOpacity>
 
       <View style={styles.divider}>
         <View style={styles.line} />
-        <Text style={{color:'#555', marginHorizontal: 10}}>VEYA</Text>
+        <Text style={{color:'#555', marginHorizontal: 10}}>{t('common.or')}</Text>
         <View style={styles.line} />
       </View>
 
-      <Text style={styles.label}>Manuel IP Adresi Girin:</Text>
+      <Text style={styles.label}>{t('connection.manual_label')}</Text>
       <TextInput 
         style={styles.input} 
         value={url} 
@@ -120,10 +128,8 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
         onPress={() => handleSave()}
         disabled={!url}
       >
-        <Text style={styles.btnText}>Bağlan</Text>
+        <Text style={styles.btnText}>{t('common.connect')}</Text>
       </TouchableOpacity>
-
-
     </View>
   );
 }

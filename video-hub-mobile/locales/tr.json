@@ -1,0 +1,102 @@
+{
+  "common": {
+    "error": "Hata",
+    "success": "Başarılı",
+    "cancel": "İptal",
+    "ok": "Tamam",
+    "save": "Kaydet",
+    "connect": "Bağlan",
+    "or": "VEYA",
+    "back": "Geri",
+    "loading": "Yükleniyor...",
+    "delete": "Sil",
+    "unknown": "Bilinmiyor",
+    "play": "Oynat",
+    "see_all": "Tümünü Gör",
+    "restart_error": "Yeniden başlatılamadı."
+  },
+  "auth": {
+    "login_title": "Hesabınıza Giriş Yapın",
+    "register_title": "Hesabınızı Oluşturun",
+    "email_placeholder": "E-posta",
+    "password_placeholder": "Şifre",
+    "login_button": "Giriş Yap",
+    "register_button": "Kayıt Ol",
+    "signup_prompt": "Hesabınız yok mu?",
+    "signup_link": "Kayıt Ol",
+    "login_prompt": "Zaten hesabınız var mı?",
+    "login_link": "Giriş Yap",
+    "empty_fields_error": "Lütfen e-posta ve şifrenizi girin."
+  },
+  "connection": {
+    "title": "Video Hub'a Bağlan",
+    "instruction": "Masaüstü uygulamanızdaki \"Ayarlar\" menüsünde bulunan QR kodu taratın.",
+    "scan_btn": "📷 QR Kodu Tara",
+    "manual_label": "Manuel IP Adresi Girin:",
+    "camera_permission_denied": "Kamera izni reddedildi",
+    "camera_overlay_text": "Masaüstü uygulamasındaki QR kodu okutun",
+    "invalid_url": "Lütfen geçerli bir sunucu adresi girin veya QR kod taratın.",
+    "invalid_qr": "Geçersiz QR Kodu",
+    "read_error": "QR Kodu okunamadı.",
+    "save_error": "Kaydetme hatası",
+    "load_error": "Yükleme hatası"
+  },
+  "main": {
+    "offline_list": "Bağlantı Yok. Kayıtlı liste gösteriliyor.",
+    "offline_downloads": "Bağlantı Yok. İndirilenleri izleyebilirsiniz.",
+    "library_loading": "Kütüphane yükleniyor...",
+    "no_series": "Henüz hiç dizi yok.",
+    "refresh": "Yenile",
+    "downloads": "İndirilenler",
+    "my_list": "Listem",
+    "unknown_title": "Bilinmeyen Başlık"
+  },
+  "player": {
+    "server_url_missing": "Sunucu URL bulunamadı",
+    "connection_error": "Sunucu bağlantı hatası",
+    "video_preparing": "Video hazırlanıyor...",
+    "playback_error": "Bir hata oluştu: {{error}}"
+  },
+  "detail": {
+    "episodes_header": "Bölümler",
+    "description_missing": "Açıklama yok.",
+    "download_exists_title": "Bilgi",
+    "download_exists_msg": "Bu bölüm zaten cihazınızda mevcut.",
+    "download_success_title": "Başarılı",
+    "download_success_msg": "İndirme işlemi tamamlandı.",
+    "download_fail_title": "Hata",
+    "download_fail_msg": "İndirme başlatılamadı.",
+    "not_found": "Dizi bulunamadı.",
+    "play":"Oynat"
+  },
+  "create_list": {
+    "title": "Kategori Oluştur",
+    "category_name_placeholder": "Kategori Adı",
+    "create_btn": "Oluştur",
+    "error_name": "Lütfen bir kategori adı girin.",
+    "error_select": "Lütfen en az bir dizi seçin."
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "section_server": "Sunucu & Bağlantı",
+    "section_storage": "Depolama",
+    "section_app": "Uygulama",
+    "server_address": "Sunucu Adresi",
+    "change_server": "Sunucu Değiştir (QR Tara)",
+    "change_server_sub": "Oturumu kapatmadan sunucu değiştirir",
+    "clear_downloads": "İndirilenleri Temizle",
+    "videos_downloaded": "{{count}} video indirildi",
+    "logout": "Çıkış Yap",
+    "logout_confirm_msg": "Hesabınızdan çıkış yapmak istiyor musunuz?",
+    "disconnect_title": "Sunucu Bağlantısını Kes",
+    "disconnect_msg": "Sunucu adresi silinecek ve QR tarama ekranına dönülecek. Oturumunuz açık kalacaktır.",
+    "disconnect_btn": "Bağlantıyı Kes",
+    "clear_cache_title": "İndirilenleri Sil",
+    "clear_cache_msg": "Cihazdaki tüm indirilen videolar silinecek. Emin misiniz?",
+    "library_cleared": "Kütüphane temizlendi."
+  },
+  "list": {
+    "empty_title": "Dizi bulunamadı.",
+    "empty_sub": "Eklemeyi veya indirmeyi deneyin."
+  }
+}
