@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Image,
@@ -16,6 +16,22 @@ const { width } = Dimensions.get("window");
 export default function Serie({ serie, onSeriePress, onPlayPress, showDownloadedEpisodes }) {
   const { toggleDownload } = useLibraryStore();
   const { t } = useTranslation(); 
+  const [imageUri, setImageUri] = useState(
+    serie?.localPoster || serie?.backdrop || serie?.poster
+  );
+
+  useEffect(() => {
+    setImageUri(serie?.localPoster || serie?.backdrop || serie?.poster);
+  }, [serie]);
+
+  const handleError = () => {
+    if (imageUri === serie?.localPoster) {
+       setImageUri(serie?.backdrop || serie?.poster);
+    } else if (imageUri === serie?.backdrop) {
+       setImageUri(serie?.poster);
+    }
+  };
+
   const handleDeleteEpisode = (episodeId) => {
     toggleDownload(serie.id, episodeId);
   };
@@ -23,7 +39,11 @@ export default function Serie({ serie, onSeriePress, onPlayPress, showDownloaded
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => onSeriePress?.(serie.id)}>
-        <Image source={{ uri: serie.localPoster || serie.poster }} style={styles.image} />
+        <Image 
+            source={{ uri: imageUri }} 
+            style={styles.image} 
+            onError={handleError} 
+        />
       </TouchableOpacity>
 
       <View style={styles.info}>

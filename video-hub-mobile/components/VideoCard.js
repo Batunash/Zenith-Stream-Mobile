@@ -1,12 +1,27 @@
-import React from "react";
-import { View, Image, StyleSheet, Dimensions, TouchableOpacity, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Image, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function VideoCard({ Height, isSelected, onPress, data }) {
   const cardHeight = Height * 0.66;
   const cardWidth = width * 0.35;
+  const [imageUri, setImageUri] = useState(
+    data?.localPoster || data?.backdrop || data?.poster
+  );
+
+  useEffect(() => {
+    setImageUri(data?.localPoster || data?.backdrop || data?.poster);
+  }, [data]);
+
+  const handleError = () => {
+    if (imageUri === data?.localPoster) {
+      setImageUri(data?.backdrop || data?.poster);
+    } else if (imageUri === data?.backdrop) {
+      setImageUri(data?.poster);
+    }
+  };
 
   return (
     <TouchableOpacity
@@ -14,9 +29,10 @@ export default function VideoCard({ Height, isSelected, onPress, data }) {
       onPress={onPress}
     >
       <Image
-        source={{ uri: data?.localPoster || data?.poster }}
+        source={{ uri: imageUri }}
         resizeMode="cover"
         style={styles.image}
+        onError={handleError} 
       />
       {isSelected && (
         <>

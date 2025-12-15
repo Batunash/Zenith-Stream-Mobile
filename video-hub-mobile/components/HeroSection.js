@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Image, ImageBackground, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next"; 
@@ -7,12 +7,29 @@ const { width, height } = Dimensions.get("window");
 export default function HeroSection({data, onComponentPress, onPlayPress}){
     const { t } = useTranslation();
     const logosize = width*0.20;
+    const [imageUri, setImageUri] = useState(
+        data?.localPoster || data?.backdrop || data?.poster
+    );
+    
+    useEffect(() => {
+        setImageUri(data?.localPoster || data?.backdrop || data?.poster);
+    }, [data]);
+
+    const handleError = () => {
+        if (imageUri === data?.localPoster) {
+            setImageUri(data?.backdrop || data?.poster);
+        } else if (imageUri === data?.backdrop) {
+            setImageUri(data?.poster);
+        }
+    };
+
     return(
         <TouchableOpacity style={[styles.container, { height: height * 0.33 }]} onPress={onComponentPress}>
              <ImageBackground 
-                  source={{uri: data?.localPoster || data?.poster}} 
+                  source={{uri: imageUri}} 
                   resizeMode="cover" 
                   style={styles.bgimage}
+                  onError={handleError}
               >
                   <View style={styles.overlay} />
                       <Image source={require('../assets/logo.png')} style={[styles.logo,{width: logosize, height: logosize}]} />
@@ -73,12 +90,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     marginLeft: 5,
-    fontSize: width * 0.04, // orantılı yazı boyutu
+    fontSize: width * 0.04, 
   },
   headerText:{
     color: "white",
     fontWeight: "bold",
     fontSize: width * 0.05
   },
-
 });

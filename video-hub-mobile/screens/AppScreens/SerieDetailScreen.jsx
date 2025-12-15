@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   View,
   Image,
@@ -27,6 +27,15 @@ export default function SerieDetailScreen() {
   const { serieId } = route.params;
   const { series, downloadEpisode, removeDownload, downloads } = useLibraryStore();
   const serie = series.find((s) => s.id === serieId);
+
+  const [detailImage, setDetailImage] = useState(null);
+
+  useEffect(() => {
+    if (serie) {
+        setDetailImage(serie.localPoster || serie.backdrop || serie.poster);
+    }
+  }, [serie]);
+
   const movieData = useMemo(() => {
     if (!serie || !serie.seasons) return null;
     if (serie.seasons.length === 1 && serie.seasons[0].episodes.length === 1) {
@@ -129,9 +138,14 @@ export default function SerieDetailScreen() {
     >
       <View style={[styles.imageContainer, { width: width }]}>
         <Image
-          source={{ uri: serie?.localPoster || serie?.poster }}
+          source={{ uri: detailImage }}
           resizeMode="cover"
           style={styles.bgimage}
+          onError={() => {
+              if (detailImage !== serie?.poster) {
+                  setDetailImage(serie?.poster);
+              }
+          }}
         />
         <TouchableOpacity 
             style={styles.backButton} 

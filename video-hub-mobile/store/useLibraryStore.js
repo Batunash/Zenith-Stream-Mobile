@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { downloadEpisodeService ,removeEpisodeService,downloadImageService} from "../services/downloadService";
+import { File } from 'expo-file-system';
 import api from "../lib/api";
 import i18n from "../services/i18n";
 
@@ -22,19 +23,25 @@ export const useLibraryStore = create(
         try {
           const res = await api.get("/series");
           let seriesData = res.data.series;
-          
-          const { series: currentSeries } = get();
-          
-          seriesData = seriesData.map(newS => {
+          const { series: currentSeries } = get();          
+          const mergedSeries = await Promise.all(seriesData.map(async (newS) => {
               const existing = currentSeries.find(oldS => String(oldS.id) === String(newS.id));
-              return existing && existing.localPoster 
-                ? { ...newS, localPoster: existing.localPoster } 
-                : newS;
-          });
+              
+              if (existing && existing.localPoster) {
+                  try {
+                      const fileCheck = new File(existing.localPoster);
+                      if (fileCheck.exists) {
+                           return { ...newS, localPoster: existing.localPoster };
+                      }
+                  } catch (e) {
+                      console.log("Dosya kontrol hatası, yerel kayıt siliniyor:", existing.localPoster);
+                  }
+              }
+              return newS;
+          }));
 
-          set({ series: seriesData, isLoading: false, error: null });
-
-          seriesData.forEach(async (serie) => {
+          set({ series: mergedSeries, isLoading: false, error: null });
+          mergedSeries.forEach(async (serie) => {
               if (serie.poster && !serie.localPoster) {
                   const localPath = await downloadImageService(serie.poster, serie.id);
                   
@@ -51,10 +58,10 @@ export const useLibraryStore = create(
           });
 
         } catch (err) {
+          console.log("Fetch hatası:", err);
           set({ isLoading: false, error: i18n.t("player.connection_error") });
         }
       },
-
       downloadEpisode: async (serieId, episodeId) => {
         const { downloads } = get();
         const alreadyDownloaded = downloads.find(
@@ -119,6 +126,12 @@ export const useLibraryStore = create(
             ...state.recentlyWatched.filter((x) => x.episodeId !== episodeId),
           ].slice(0, 25),
         })),
+        addList: (list) => set((state) => ({
+        lists: [
+          ...state.lists, 
+          { ...list, id: Date.now().toString(), seriesIds: list.seriesIds || [] }
+        ]
+      })),
 
       clearAll: () =>
         set({
