@@ -3,40 +3,53 @@
     "name": "Zenith Stream",
     "slug": "video-hub-mobile",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
+
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#121212"
     },
-   "ios": {
+
+    "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.batunash.zenithstream",
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
+
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+
+        "NSLocalNetworkUsageDescription": "Uygulamanın yerel ağdaki Zenith Stream sunucusuna bağlanabilmesi için gereklidir.",
+
+        "NSBonjourServices": [
+          "_http._tcp"
+        ],
+
+        "NSCameraUsageDescription": "QR kodu tarayarak sunucuya bağlanmak için kamera izni gereklidir.",
+        "NSMicrophoneUsageDescription": "Video oynatıcı gereksinimleri için mikrofon erişimi tanımlanmıştır."
       }
     },
+
     "android": {
+      "package": "com.batunash.zenithstream",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#121212"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.batunash.zenithstream",
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
-    "web": {},
+
     "plugins": [
       [
         "expo-build-properties",
@@ -46,8 +59,16 @@
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "QR kodu tarayarak sunucuya bağlanmak için kamera izni gereklidir.",
+          "microphonePermission": "Video oynatıcı gereksinimleri için mikrofon erişimi tanımlanmıştır."
+        }
+      ]
     ],
+
     "extra": {
       "eas": {
         "projectId": "c87311b7-b130-4516-8027-4e0bc041c266"

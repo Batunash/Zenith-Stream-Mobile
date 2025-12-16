@@ -10,6 +10,7 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [scanned, setScanned] = useState(false); 
 
   useEffect(() => {
     const checkLastConnection = async () => {
@@ -46,21 +47,28 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
   };
 
   const handleBarCodeScanned = ({ data }) => {
+    if (scanned) return; 
+    setScanned(true); 
     setShowCamera(false);
+
     try {
         const parsed = JSON.parse(data);
         if (parsed.url) {
             const fullUrl = parsed.url.endsWith('/api') ? parsed.url : `${parsed.url}/api`;
             handleSave(fullUrl);
         } else {
-            Alert.alert(t('common.error'), t('connection.invalid_qr'));
+            Alert.alert(t('common.error'), t('connection.invalid_qr'), [
+                { text: "OK", onPress: () => setScanned(false) }
+            ]);
         }
     } catch (e) {
         if (data.startsWith("http")) {
              const fullUrl = data.endsWith('/api') ? data : `${data}/api`;
              handleSave(fullUrl);
         } else {
-             Alert.alert(t('common.error'), t('connection.read_error'));
+             Alert.alert(t('common.error'), t('connection.read_error'), [
+                { text: "OK", onPress: () => setScanned(false) }
+             ]);
         }
     }
   };
@@ -73,6 +81,7 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
             return;
           }
       }
+      setScanned(false);
       setShowCamera(true);
   };
 
