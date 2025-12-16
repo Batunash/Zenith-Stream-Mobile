@@ -28,7 +28,8 @@
         "NSLocalNetworkUsageDescription": "Uygulamanın yerel ağdaki Zenith Stream sunucusuna bağlanabilmesi için gereklidir.",
 
         "NSBonjourServices": [
-          "_http._tcp"
+          "_http._tcp",
+          "_bonjour._tcp"
         ],
 
         "NSCameraUsageDescription": "QR kodu tarayarak sunucuya bağlanmak için kamera izni gereklidir.",
