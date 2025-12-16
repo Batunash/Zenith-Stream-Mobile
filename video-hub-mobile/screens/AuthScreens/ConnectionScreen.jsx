@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "reac
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
-import * as Network from 'expo-network';
+// import * as Network from 'expo-network';  <-- BU SATIRI MUTLAKA SİL!
 
 export default function ConnectionScreen({ onConnectionSuccess }) {
   const { t } = useTranslation(); 
@@ -14,15 +14,14 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
   const [scanned, setScanned] = useState(false); 
 
   useEffect(() => {
-    const triggerLocalNetworkPermission = async () => {
+    const triggerPermissionSafe = async () => {
       try {
-        const ip = await Network.getIpAddressAsync();
-        console.log("Local IP (Permission Trigger):", ip);
+        await fetch('http://192.168.1.1', { method: 'HEAD' });
       } catch (e) {
-        console.log("Permission trigger silent fail:", e);
+        console.log("Permission trigger ping executed");
       }
     };
-    triggerLocalNetworkPermission();
+    triggerPermissionSafe();
 
     const checkLastConnection = async () => {
       try {
