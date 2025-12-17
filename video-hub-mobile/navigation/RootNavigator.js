@@ -31,22 +31,19 @@ export default function RootNavigator() {
   }, []);
 
   if (loading) return <SplashScreen />;
-  if (!isSetupDone) {
-    return (
-      <NavigationContainer>
+  return (
+    <NavigationContainer>
+      {!isSetupDone ? (
         <ConnectionScreen
           onConnectionSuccess={async (newUrl) => {
             await AsyncStorage.setItem("server-url", newUrl);
             setServerUrl(newUrl);
-            setIsSetupDone(true);
+            setIsSetupDone(true); 
           }}
         />
-      </NavigationContainer>
-    );
-  }
-  return (
-    <NavigationContainer>
-      {token ? <AppStack /> : <AuthStack />}
+      ) : (
+        token ? <AppStack /> : <AuthStack />
+      )}
     </NavigationContainer>
   );
 }

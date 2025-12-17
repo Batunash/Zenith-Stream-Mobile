@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Keyboard } from "react-native"; 
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
-// import * as Network from 'expo-network';  <-- BU SATIRI MUTLAKA SİL!
 
 export default function ConnectionScreen({ onConnectionSuccess }) {
   const { t } = useTranslation(); 
@@ -13,32 +12,40 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
   const [isLoading, setIsLoading] = useState(true);
   const [scanned, setScanned] = useState(false); 
 
-  useEffect(() => {
-    const triggerPermissionSafe = async () => {
-      try {
-        await fetch('http://192.168.1.1', { method: 'HEAD' });
-      } catch (e) {
-        console.log("Permission trigger ping executed");
-      }
-    };
-    triggerPermissionSafe();
+  const getHealthUrl = (baseUrl) => {
+    if (!baseUrl) return null;
+    let cleanUrl = baseUrl.trim();
+    if (cleanUrl.endsWith('/')) cleanUrl = cleanUrl.slice(0, -1);
+    if (cleanUrl.endsWith('/api')) cleanUrl = cleanUrl.slice(0, -4); 
+    return `${cleanUrl}/health`;
+  };
 
-    const checkLastConnection = async () => {
+  useEffect(() => {
+    const initialize = async () => {
       try {
         const savedUrl = await AsyncStorage.getItem("server-url");
+        
         if (savedUrl) {
-          setUrl(savedUrl); 
-        }
+          const healthUrl = getHealthUrl(savedUrl);
+          console.log(`Dinamik Health Check (Saved): ${healthUrl}`);
+          fetch(healthUrl).catch((err) => {
+             console.log("Health check fail (normal olabilir):", err.message);
+          });
+          setUrl(savedUrl);
+        } 
+        
       } catch (e) {
-        console.error("Yükleme hatası", e);
+        console.error("Başlangıç hatası:", e);
       } finally {
         setIsLoading(false);
       }
     };
-    checkLastConnection();
+
+    initialize();
   }, []);
 
   const handleSave = async (scannedUrl = null) => {
+    Keyboard.dismiss(); 
     const targetUrl = scannedUrl || url;
       if (!targetUrl || !targetUrl.startsWith("http")) {
       Alert.alert(t('common.error'), t('connection.invalid_url'));
@@ -47,6 +54,10 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
     
     try {
       await AsyncStorage.setItem("server-url", targetUrl);
+      const healthUrl = getHealthUrl(targetUrl);
+      console.log(`Dinamik Health Check (New Input): ${healthUrl}`);
+      fetch(healthUrl).catch(() => {});
+
       if (onConnectionSuccess) {
           onConnectionSuccess(targetUrl); 
       }
@@ -84,6 +95,8 @@ export default function ConnectionScreen({ onConnectionSuccess }) {
   };
 
   const openCamera = async () => {
+      Keyboard.dismiss(); 
+      
       if (!permission?.granted) {
           const { granted } = await requestPermission();
           if (!granted) {
