@@ -8,7 +8,7 @@ import ConnectionScreen from "../screens/AuthScreens/ConnectionScreen";
 import SplashScreen from "../screens/splashScreen";
 
 export default function RootNavigator() {
-  const { token } = useAuthStore();
+  const token = useAuthStore((state) => state.token);
   const [loading, setLoading] = useState(true);
   const [serverUrl, setServerUrl] = useState(null);
   const [isSetupDone, setIsSetupDone] = useState(false);
