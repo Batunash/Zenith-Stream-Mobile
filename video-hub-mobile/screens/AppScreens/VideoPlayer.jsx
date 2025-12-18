@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { StyleSheet, View, Platform, ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { VideoView, useVideoPlayer } from "expo-video";
 import * as ScreenOrientation from "expo-screen-orientation";
 import * as NavigationBar from "expo-navigation-bar";
 import { StatusBar } from "expo-status-bar";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons"; 
 import { useLibraryStore } from "../../store/useLibraryStore";
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
@@ -21,15 +21,52 @@ export default function VideoScreen() {
   const navigation = useNavigation();
   const { serieId, episodeId } = route.params || {};
   const { downloads, markProgress, markRecentlyWatched, series } = useLibraryStore();
+  
   const [serverUrl, setServerUrl] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState(null); 
   const didSeekRef = useRef(false); 
+  
+  // Timeout kontrolü için ref
+  const lastProgressRef = useRef(Date.now());
+  const timeoutRef = useRef(null);
+
   const serie = series.find((s) => s.id === serieId);
   const episode = serie?.seasons?.flatMap((sea) => sea.episodes)?.find((ep) => ep.id === episodeId);
   const resumeProgress = episode?.progress || 0;
   const downloadedItem = downloads.find(d => d.episodeId === episodeId);
 
+  // --- GÜVENLİ ÇIKIŞ FONKSİYONU ---
+  const handleBack = useCallback(async () => {
+    try {
+      // 1. Önce player'ı durdur (arka planda ses devam etmesin)
+      if (player) {
+        player.pause();
+      }
+
+      // 2. Ekranı Dikey Moda Zorla
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+      
+      // 3. Android Navigasyon Barı ve Status Barı Geri Getir
+      if (Platform.OS === "android") {
+        await NavigationBar.setVisibilityAsync("visible");
+      }
+      
+      // 4. Kısa bir gecikme ile sayfadan çık. 
+      // Bu gecikme, ekranın dikey moda dönmesi için UI'a zaman tanır.
+      setTimeout(() => {
+        navigation.goBack();
+      }, 100);
+
+    } catch (error) {
+      console.warn("Çıkış hatası:", error);
+      // Hata olsa bile çıkmayı dene
+      navigation.goBack();
+    }
+  }, [navigation, player]);
+  // --------------------------------
+
+  // 1. GÜVENLİ SUNUCU KONTROLÜ
   useEffect(() => {
     const loadServerUrl = async () => {
       if (downloadedItem) {
@@ -38,21 +75,41 @@ export default function VideoScreen() {
       }
       try {
         const url = await AsyncStorage.getItem("server-url");
-        if (url) setServerUrl(url);
-        else console.warn("Sunucu URL bulunamadı");
+        if (!url) {
+          setError(t('player.connection_error') || "Sunucu adresi bulunamadı.");
+          setIsReady(true);
+          return;
+        }
+
+        try {
+          const controller = new AbortController();
+          const id = setTimeout(() => controller.abort(), 2000); 
+          await fetch(url, { method: 'HEAD', signal: controller.signal });
+          clearTimeout(id);
+          setServerUrl(url);
+        } catch (pingErr) {
+          console.warn("Sunucuya erişilemedi:", pingErr);
+          setError(t('player.connection_error') || "Sunucuya bağlanılamadı.");
+        }
       } catch (e) {
-        console.error("URL okuma hatası", e);
-        setError(t('player.connection_error'));
+        console.error("Kritik hata", e);
+        setError(t('player.playback_error') || "Beklenmedik bir hata oluştu.");
       } finally {
         setIsReady(true);
       }
     };
     loadServerUrl();
-  }, [downloadedItem]);
+  }, [downloadedItem, t]);
 
   const videoUri = downloadedItem 
     ? downloadedItem.localPath 
     : (serverUrl ? `${serverUrl}/stream/${episodeId}` : null);
+
+  useEffect(() => {
+    if (isReady && !videoUri && !error) {
+      setError(t('player.video_not_found') || "Video kaynağı oluşturulamadı.");
+    }
+  }, [isReady, videoUri, error, t]);
 
   const player = useVideoPlayer(videoUri, (p) => {
     if (videoUri) {
@@ -64,17 +121,38 @@ export default function VideoScreen() {
     }
   });
 
+  // 2. PLAYER EVENTLERİ
   useEffect(() => {
     if (!player || !videoUri) return;
+
+    const startWatchdog = () => {
+      if(timeoutRef.current) clearInterval(timeoutRef.current);
+      lastProgressRef.current = Date.now();
+      
+      timeoutRef.current = setInterval(() => {
+        if (Date.now() - lastProgressRef.current > 15000 && player.playing) {
+           console.warn("Video timeout");
+           setError(t('player.timeout') || "Video yüklenirken zaman aşımı oluştu.");
+           if(timeoutRef.current) clearInterval(timeoutRef.current);
+        }
+      }, 5000);
+    };
+
+    startWatchdog();
+
     const sub = player.addListener("timeUpdate", async ({ currentTime, duration = 0 }) => { 
+      lastProgressRef.current = Date.now();
       const safeDuration = duration || 0;
       if (safeDuration <= 0) return;
       const progress = currentTime / safeDuration;
-      markProgress(serieId, episodeId, progress);
+      
+      // Store güncellemelerini try-catch'e alalım ki player durmasın
+      try {
+        markProgress(serieId, episodeId, progress);
+      } catch(e) {}
+
       if (!didSeekRef.current && resumeProgress > 0.02 && resumeProgress < 0.95) {
         const seekTime = safeDuration * resumeProgress;
-        console.log(`⏩ Resume tetiklendi: ${seekTime.toFixed(1)}sn`);
-        
         player.seekTo(seekTime);
         didSeekRef.current = true; 
       }
@@ -86,52 +164,74 @@ export default function VideoScreen() {
     });
 
     const endSub = player.addListener("playToEnd", () => {
-      markProgress(serieId, episodeId, 1);
-      markRecentlyWatched({ serieId, episodeId });
-      navigation.goBack();
+      try {
+        markProgress(serieId, episodeId, 1);
+        markRecentlyWatched({ serieId, episodeId });
+      } catch(e) { console.warn(e) }
+      
+      // Video bittiğinde de güvenli çıkış fonksiyonunu kullan
+      handleBack();
     });
 
     return () => {
       sub.remove();
       endSub.remove();
+      if(timeoutRef.current) clearInterval(timeoutRef.current);
     };
-  }, [player, resumeProgress, videoUri]); 
+  }, [player, resumeProgress, videoUri, serieId, episodeId, downloadedItem, markProgress, markRecentlyWatched, handleBack]); 
 
-  useEffect(() => {
-    (async () => {
-      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-      if (Platform.OS === "android") {
-        await NavigationBar.setVisibilityAsync("hidden");
-        await NavigationBar.setBehaviorAsync('overlay-swipe');
-      }
-    })();
-
-    return () => {
-      (async () => {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+  // ROTASYON YÖNETİMİ (Giriş için)
+  // useFocusEffect içinde sadece girişte landscape yapıyoruz.
+  // Çıkış işlemini handleBack ile manuel yönetiyoruz artık.
+  useFocusEffect(
+    useCallback(() => {
+      const lockLandscape = async () => {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
         if (Platform.OS === "android") {
-          await NavigationBar.setVisibilityAsync("visible");
+          await NavigationBar.setVisibilityAsync("hidden");
+          await NavigationBar.setBehaviorAsync('overlay-swipe');
         }
-      })();
-    };
-  }, []);
+      };
+      lockLandscape();
+      
+      // Swipe ile geri gelme (Gesture) durumu için fallback cleanup
+      return () => {
+         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+         if (Platform.OS === "android") {
+            NavigationBar.setVisibilityAsync("visible");
+         }
+      };
+    }, [])
+  );
+
+  // --- RENDER ---
 
   if (error) {
      return (
-      <View style={[styles.container, styles.center]}>
-        <Text style={{color: 'white', marginBottom: 20}}>{t('player.playback_error', {error})}</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{padding: 10, backgroundColor: '#333', borderRadius: 5}}>
-            <Text style={{color: 'white'}}>{t('common.back')}</Text>
+      <View style={[styles.container, styles.center, { zIndex: 9999 }]}>
+        <StatusBar hidden={false} style="light" />
+        <Ionicons name="alert-circle-outline" size={64} color="#ef4444" style={{ marginBottom: 16 }} />
+        <Text style={{color: 'white', fontSize: 16, marginBottom: 24, textAlign: 'center', paddingHorizontal: 32}}>
+          {error}
+        </Text>
+        <TouchableOpacity 
+          onPress={handleBack} 
+          style={{paddingVertical: 12, paddingHorizontal: 24, backgroundColor: '#333', borderRadius: 8}}
+        >
+            <Text style={{color: 'white', fontWeight: 'bold'}}>{t('common.back') || "Geri Dön"}</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  if (!isReady || (!videoUri && !downloadedItem && !serverUrl)) {
+  if (!isReady || (!videoUri && !downloadedItem)) {
     return (
       <View style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color="#C6A14A" />
-        <Text style={{color: 'white', marginTop: 10}}>{t('player.video_preparing')}</Text>
+        <Text style={{color: 'white', marginTop: 10}}>{t('player.video_preparing') || "Video hazırlanıyor..."}</Text>
+        <TouchableOpacity onPress={handleBack} style={{marginTop: 30}}>
+           <Text style={{color: '#888', textDecorationLine: 'underline'}}>{t('common.cancel') || "İptal"}</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -153,9 +253,10 @@ export default function VideoScreen() {
         allowsFullscreen={true}
         startsPictureInPictureAutomatically={false}
       />
+      
       <TouchableOpacity 
         style={styles.backButton} 
-        onPress={() => navigation.goBack()}
+        onPress={handleBack}
         hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}
       >
         <Ionicons name="arrow-back" size={28} color="white" />

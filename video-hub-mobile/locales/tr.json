@@ -7,13 +7,14 @@
     "save": "Kaydet",
     "connect": "Bağlan",
     "or": "VEYA",
-    "back": "Geri",
+    "back": "Geri Dön",
     "loading": "Yükleniyor...",
     "delete": "Sil",
     "unknown": "Bilinmiyor",
     "play": "Oynat",
     "see_all": "Tümünü Gör",
-    "restart_error": "Yeniden başlatılamadı."
+    "restart_error": "Yeniden başlatılamadı.",
+    "retry": "Tekrar Dene"
   },
   "auth": {
     "login_title": "Hesabınıza Giriş Yapın",
@@ -26,7 +27,9 @@
     "signup_link": "Kayıt Ol",
     "login_prompt": "Zaten hesabınız var mı?",
     "login_link": "Giriş Yap",
-    "empty_fields_error": "Lütfen e-posta ve şifrenizi girin."
+    "empty_fields_error": "Lütfen e-posta ve şifrenizi girin.",
+    "login_error": "Giriş başarısız oldu.",
+    "register_success": "Kayıt başarılı!"
   },
   "connection": {
     "title": "Zenith Stream Desktop'a Bağlan",
@@ -53,9 +56,11 @@
   },
   "player": {
     "server_url_missing": "Sunucu URL bulunamadı",
-    "connection_error": "Sunucu bağlantı hatası",
-    "video_preparing": "Video hazırlanıyor...",
-    "playback_error": "Bir hata oluştu: {{error}}"
+    "connection_error": "Sunucu bağlantısı kurulamadı. Lütfen internetinizi kontrol edin.",
+    "video_preparing": "Video hazırlanıyor, lütfen bekleyin...",
+    "playback_error": "Video oynatılırken bir sorun oluştu: {{error}}",
+    "video_not_found": "Video kaynağı bulunamadı veya sunucuda mevcut değil.",
+    "timeout": "Video yüklenmesi zaman aşımına uğradı. Bağlantı çok yavaş olabilir."
   },
   "detail": {
     "episodes_header": "Bölümler",
@@ -67,7 +72,7 @@
     "download_fail_title": "Hata",
     "download_fail_msg": "İndirme başlatılamadı.",
     "not_found": "Dizi bulunamadı.",
-    "play":"Oynat"
+    "play": "Oynat"
   },
   "create_list": {
     "title": "Kategori Oluştur",
@@ -93,7 +98,9 @@
     "disconnect_btn": "Bağlantıyı Kes",
     "clear_cache_title": "İndirilenleri Sil",
     "clear_cache_msg": "Cihazdaki tüm indirilen videolar silinecek. Emin misiniz?",
-    "library_cleared": "Kütüphane temizlendi."
+    "library_cleared": "Kütüphane temizlendi.",
+    "language": "Dil",
+    "download_quality": "İndirme Kalitesi"
   },
   "list": {
     "empty_title": "Dizi bulunamadı.",

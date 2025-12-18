@@ -7,13 +7,14 @@
     "save": "Save",
     "connect": "Connect",
     "or": "OR",
-    "back": "Back",
+    "back": "Go Back",
     "loading": "Loading...",
     "delete": "Delete",
     "unknown": "Unknown",
     "play": "Play",
     "see_all": "See All",
-    "restart_error": "Could not restart."
+    "restart_error": "Could not restart.",
+    "retry": "Retry"
   },
   "auth": {
     "login_title": "Login to Your Account",
@@ -26,7 +27,9 @@
     "signup_link": "Sign up",
     "login_prompt": "Already have an account?",
     "login_link": "Log in",
-    "empty_fields_error": "Please enter your email and password."
+    "empty_fields_error": "Please enter your email and password.",
+    "login_error": "Login failed.",
+    "register_success": "Registration successful!"
   },
   "connection": {
     "title": "Connect to Zenith Stream Desktop",
@@ -53,9 +56,11 @@
   },
   "player": {
     "server_url_missing": "Server URL not found",
-    "connection_error": "Server connection error",
-    "video_preparing": "Preparing video...",
-    "playback_error": "An error occurred: {{error}}"
+    "connection_error": "Could not connect to the server. Please check your internet connection.",
+    "video_preparing": "Video is preparing, please wait...",
+    "playback_error": "An error occurred while playing the video: {{error}}",
+    "video_not_found": "Video source not found or unavailable on the server.",
+    "timeout": "Video loading timed out. The connection might be too slow."
   },
   "detail": {
     "episodes_header": "Episodes",
@@ -93,7 +98,9 @@
     "disconnect_btn": "Disconnect",
     "clear_cache_title": "Delete Downloads",
     "clear_cache_msg": "All downloaded videos on the device will be deleted. Are you sure?",
-    "library_cleared": "Library cleared."
+    "library_cleared": "Library cleared.",
+    "language": "Language",
+    "download_quality": "Download Quality"
   },
   "list": {
     "empty_title": "No series found.",

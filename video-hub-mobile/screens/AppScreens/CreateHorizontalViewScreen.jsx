@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
+  Alert
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,11 +37,11 @@ export default function CreateHorizontalViewScreen() {
 
   const handleCreateList = () => {
     if (!categoryName.trim()) {
-      alert(t('create_list.error_name')); 
+      Alert.alert(t('common.error'), t('create_list.error_name')); 
       return;
     }
     if (selectedSeries.length === 0) {
-      alert(t('create_list.error_select')); 
+      Alert.alert(t('common.error'), t('create_list.error_select')); 
       return;
     }
 

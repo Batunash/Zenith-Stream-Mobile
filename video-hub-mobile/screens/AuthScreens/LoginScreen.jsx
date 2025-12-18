@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Alert
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,7 +34,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert(t('auth.empty_fields_error')); 
+      Alert.alert(t('common.error'), t('auth.empty_fields_error')); 
       return;
     }
     await login(email, password);
@@ -108,7 +109,7 @@ export default function LoginScreen() {
         )}
       </TouchableOpacity>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={styles.errorText}>{t('auth.login_error')}</Text>}
 
       <View
         style={{

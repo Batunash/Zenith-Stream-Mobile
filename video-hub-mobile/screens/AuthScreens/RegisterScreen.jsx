@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Alert
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,7 +34,7 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!email || !password) {
-      alert(t('auth.empty_fields_error')); 
+      Alert.alert(t('common.error'), t('auth.empty_fields_error')); 
       return;
     }
     await register(email, password);

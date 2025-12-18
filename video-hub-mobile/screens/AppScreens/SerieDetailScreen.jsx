@@ -55,26 +55,26 @@ export default function SerieDetailScreen() {
     );
 
     if (isAlreadyDownloaded) {
-        Alert.alert(t('detail.download_exists_title') || "Bilgi", t('detail.download_exists_msg') || "Zaten indirilmiş.");
+        Alert.alert(t('detail.download_exists_title'), t('detail.download_exists_msg'));
         return;
     }
 
     try {
       await downloadEpisode(serieId, episodeId);
-      Alert.alert(t('detail.download_success_title') || "Başarılı", t('detail.download_success_msg') || "İndirme tamamlandı.");
+      Alert.alert(t('detail.download_success_title'), t('detail.download_success_msg'));
     } catch (e) {
-      Alert.alert(t('detail.download_fail_title') || "Hata", e.message || t('detail.download_fail_msg') || "İndirme başarısız.");
+      Alert.alert(t('detail.download_fail_title'), e.message || t('detail.download_fail_msg'));
     }
   };
 
   const handleDelete = (episodeId, title) => {
       Alert.alert(
-          t('common.warning') || "Silme İşlemi",
-          `"${title || 'Bu bölümü'}" silmek istediğinize emin misiniz?`,
+          t('common.delete'),
+          t('settings.clear_cache_msg'), // Burada "Emin misiniz" benzeri bir mesaj kullanılabilir veya custom bir mesaj eklenebilir
           [
-              { text: t('common.cancel') || "Vazgeç", style: "cancel" },
+              { text: t('common.cancel'), style: "cancel" },
               { 
-                  text: t('common.delete') || "Sil", 
+                  text: t('common.delete'), 
                   style: "destructive", 
                   onPress: async () => {
                       await removeDownload(episodeId);
@@ -124,7 +124,7 @@ export default function SerieDetailScreen() {
     return (
       <View style={styles.container}>
         <Text style={{ color: "#fff", textAlign: "center", marginTop: 40 }}>
-          {t('detail.not_found') || "İçerik bulunamadı."}
+          {t('detail.not_found')}
         </Text>
       </View>
     );
@@ -158,7 +158,7 @@ export default function SerieDetailScreen() {
       <View style={[styles.infoContainer, { width: width }]}>
         <Text style={styles.title}>{serie?.title}</Text>
         <Text style={styles.description} numberOfLines={4}>
-          {serie?.description || t('detail.description_missing') || "Açıklama yok."}
+          {serie?.description || t('detail.description_missing')}
         </Text>
 
         <View style={styles.buttonContainer}>
@@ -167,7 +167,7 @@ export default function SerieDetailScreen() {
             onPress={handlePlayMain}
           >
             <Ionicons name="play-circle" size={22} color="#000" />
-            <Text style={styles.buttonText}>{t('detail.play') || "Oynat"}</Text>
+            <Text style={styles.buttonText}>{t('detail.play')}</Text>
           </TouchableOpacity>
         </View>
       </View>
