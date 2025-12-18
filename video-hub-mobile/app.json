@@ -6,37 +6,30 @@
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": false,
-
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#121212"
     },
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.batunash.zenithstream",
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-
         "NSLocalNetworkUsageDescription": "Uygulamanın yerel ağdaki Zenith Stream sunucusuna bağlanabilmesi için gereklidir.",
-
         "NSBonjourServices": [
           "_http._tcp",
           "_bonjour._tcp"
         ],
-
         "NSCameraUsageDescription": "QR kodu tarayarak sunucuya bağlanmak için kamera izni gereklidir.",
         "NSMicrophoneUsageDescription": "Video oynatıcı gereksinimleri için mikrofon erişimi tanımlanmıştır."
       }
     },
-
     "android": {
       "package": "com.batunash.zenithstream",
       "adaptiveIcon": {
@@ -50,7 +43,6 @@
         "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
-
     "plugins": [
       [
         "expo-build-properties",
@@ -67,9 +59,9 @@
           "cameraPermission": "QR kodu tarayarak sunucuya bağlanmak için kamera izni gereklidir.",
           "microphonePermission": "Video oynatıcı gereksinimleri için mikrofon erişimi tanımlanmıştır."
         }
-      ]
+      ],
+      "expo-video"
     ],
-
     "extra": {
       "eas": {
         "projectId": "c87311b7-b130-4516-8027-4e0bc041c266"
