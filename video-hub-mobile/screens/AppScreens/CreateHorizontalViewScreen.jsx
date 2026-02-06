@@ -11,21 +11,24 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import VideoCard from "../../components/VideoCard";
 import Footer from "../../components/Footer";
 import { useLibraryStore } from "../../store/useLibraryStore";
-import { useTranslation } from "react-i18next"; 
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
 export default function CreateHorizontalViewScreen() {
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
   const navigation = useNavigation();
+  const route = useRoute();
+  const { editMode, listId, initialTitle, initialSeriesIds } = route.params || {};
+
   const insets = useSafeAreaInsets();
-  const { series, addList } = useLibraryStore();
-  const [categoryName, setCategoryName] = useState("");
-  const [selectedSeries, setSelectedSeries] = useState([]);
+  const { series, addList, updateList } = useLibraryStore();
+  const [categoryName, setCategoryName] = useState(initialTitle || "");
+  const [selectedSeries, setSelectedSeries] = useState(initialSeriesIds || []);
 
   const handleSelectSerie = (serieId) => {
     setSelectedSeries((current) =>
@@ -37,15 +40,19 @@ export default function CreateHorizontalViewScreen() {
 
   const handleCreateList = () => {
     if (!categoryName.trim()) {
-      Alert.alert(t('common.error'), t('create_list.error_name')); 
+      Alert.alert(t('common.error'), t('create_list.error_name'));
       return;
     }
     if (selectedSeries.length === 0) {
-      Alert.alert(t('common.error'), t('create_list.error_select')); 
+      Alert.alert(t('common.error'), t('create_list.error_select'));
       return;
     }
 
-    addList({ title: categoryName, seriesIds: selectedSeries });
+    if (editMode) {
+      updateList(listId, { title: categoryName, seriesIds: selectedSeries });
+    } else {
+      addList({ title: categoryName, seriesIds: selectedSeries });
+    }
     navigation.goBack();
   };
 
@@ -64,7 +71,9 @@ export default function CreateHorizontalViewScreen() {
         <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
           <Ionicons name="arrow-back-outline" size={32} color="#ffffff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('create_list.title')}</Text>
+        <Text style={styles.headerTitle}>
+          {editMode ? t('create_list.edit_title') || "Edit List" : t('create_list.title')}
+        </Text>
       </View>
       <View style={styles.inputContainer}>
         <Ionicons
@@ -75,7 +84,7 @@ export default function CreateHorizontalViewScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder={t('create_list.category_name_placeholder')} 
+          placeholder={t('create_list.category_name_placeholder')}
           placeholderTextColor="#aaa"
           value={categoryName}
           onChangeText={setCategoryName}
@@ -98,7 +107,9 @@ export default function CreateHorizontalViewScreen() {
       </ScrollView>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.createButton} onPress={handleCreateList}>
-          <Text style={styles.buttonText}>{t('create_list.create_btn')}</Text>
+          <Text style={styles.buttonText}>
+            {editMode ? t('create_list.update_btn') || "Update List" : t('create_list.create_btn')}
+          </Text>
         </TouchableOpacity>
       </View>
 

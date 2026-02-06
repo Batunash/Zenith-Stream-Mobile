@@ -79,7 +79,9 @@
     "category_name_placeholder": "Kategori Adı",
     "create_btn": "Oluştur",
     "error_name": "Lütfen bir kategori adı girin.",
-    "error_select": "Lütfen en az bir dizi seçin."
+    "error_select": "Lütfen en az bir dizi seçin.",
+    "edit_title": "Kategoriyi Düzenle",
+    "update_btn": "Güncelle"
   },
   "settings": {
     "title": "Ayarlar",

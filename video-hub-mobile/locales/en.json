@@ -79,7 +79,9 @@
     "category_name_placeholder": "Category Name",
     "create_btn": "Create",
     "error_name": "Please enter a category name.",
-    "error_select": "Please select at least one series."
+    "error_select": "Please select at least one series.",
+    "edit_title": "Edit Category",
+    "update_btn": "Update"
   },
   "settings": {
     "title": "Settings",

@@ -1,3 +1,4 @@
+
 import React, { useCallback } from "react";
 import {
   View,
@@ -8,12 +9,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import VideoCard from "./VideoCard";
-import { useTranslation } from "react-i18next"; 
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
-export default function HorizontalList({ title, data = [], onSeeAll, onCardPress }) {
-  const { t } = useTranslation(); 
+export default function HorizontalList({ title, data = [], onSeeAll, onCardPress, onEdit, onDelete }) {
+  const { t } = useTranslation();
   const HorizontalListHeight = height * 0.33;
 
   if (!Array.isArray(data) || data.length === 0) return null;
@@ -25,6 +26,14 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
     },
     [onSeeAll]
   );
+
+  const handleEdit = useCallback(() => {
+    onEdit?.();
+  }, [onEdit]);
+
+  const handleDelete = useCallback(() => {
+    onDelete?.();
+  }, [onDelete]);
 
   const renderItem = useCallback(
     ({ item }) => (
@@ -48,14 +57,30 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
         <Text style={styles.title} numberOfLines={1}>
           {title}
         </Text>
-        <TouchableOpacity
-          onPress={handleSeeAll}
-          activeOpacity={0.7}
-          accessibilityLabel="See all"
-          accessibilityRole="button"
-        >
-          <Text style={styles.seeAll}>{t('common.see_all')}</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {(onEdit || onDelete) && (
+            <View style={styles.editActions}>
+              {onEdit && (
+                <TouchableOpacity onPress={handleEdit} style={styles.actionBtn}>
+                  <Text style={{ color: '#C6A14A', fontSize: 18 }}>✎</Text>
+                </TouchableOpacity>
+              )}
+              {onDelete && (
+                <TouchableOpacity onPress={handleDelete} style={styles.actionBtn}>
+                  <Text style={{ color: '#ef4444', fontSize: 18 }}>🗑</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={handleSeeAll}
+            activeOpacity={0.7}
+            accessibilityLabel="See all"
+            accessibilityRole="button"
+          >
+            <Text style={styles.seeAll}>{t('common.see_all')}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <FlatList
         data={data}
@@ -97,4 +122,20 @@ const styles = StyleSheet.create({
   listContent: {
     paddingRight: 10,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15
+  },
+  editActions: {
+    flexDirection: 'row',
+    gap: 15,
+    marginRight: 10,
+    borderRightWidth: 1,
+    borderRightColor: '#333',
+    paddingRight: 15
+  },
+  actionBtn: {
+    padding: 4
+  }
 });
