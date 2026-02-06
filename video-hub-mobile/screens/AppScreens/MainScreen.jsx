@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Text,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,7 +24,7 @@ export default function MainScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const { lists, series, fetchSeries, isLoading, error } = useLibraryStore();
+  const { lists, series, fetchSeries, isLoading, error, removeList } = useLibraryStore();
   const firstSerie = series?.[0];
   const isOffline = !!error;
 
@@ -37,6 +38,33 @@ export default function MainScreen() {
 
   const handleSeeAll = (listId) =>
     navigation.navigate("SeeAllScreen", { listId });
+
+  // --- List Management Handlers ---
+  const handleEditList = (list) => {
+    navigation.navigate("CreateHorizontalViewScreen", {
+      editMode: true,
+      listId: list.id,
+      initialTitle: list.title,
+      initialSeriesIds: list.seriesIds,
+    });
+  };
+
+  const handleDeleteList = (listId) => {
+    const list = lists.find(l => l.id === listId);
+    Alert.alert(
+      t('common.delete') || "Delete",
+      t('main.delete_list_confirm') || `Are you sure you want to delete "${list?.title}"?`,
+      [
+        { text: t('common.cancel') || "Cancel", style: "cancel" },
+        {
+          text: t('common.delete') || "Delete",
+          style: "destructive",
+          onPress: () => removeList(listId)
+        }
+      ]
+    );
+  };
+  // --------------------------------
 
   const handlePlay = (serie) => {
     const firstSeason = serie.seasons?.[0];
@@ -139,6 +167,8 @@ export default function MainScreen() {
                   data={listSeries}
                   onSeeAll={() => handleSeeAll(list.id)}
                   onCardPress={(serie) => handleSerieDetail(serie.id)}
+                  onEdit={() => handleEditList(list)} // Pass edit handler
+                  onDelete={() => handleDeleteList(list.id)} // Pass delete handler
                 />
               );
             })}

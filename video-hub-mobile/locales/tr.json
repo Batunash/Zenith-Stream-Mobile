@@ -52,7 +52,8 @@
     "refresh": "Yenile",
     "downloads": "İndirilenler",
     "my_list": "Listem",
-    "unknown_title": "Bilinmeyen Başlık"
+    "unknown_title": "Bilinmeyen Başlık",
+    "delete_list_confirm": "Bu listeyi silmek istediğinize emin misiniz?"
   },
   "player": {
     "server_url_missing": "Sunucu URL bulunamadı",
