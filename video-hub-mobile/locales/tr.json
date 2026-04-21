@@ -53,7 +53,8 @@
     "downloads": "İndirilenler",
     "my_list": "Listem",
     "unknown_title": "Bilinmeyen Başlık",
-    "delete_list_confirm": "Bu listeyi silmek istediğinize emin misiniz?"
+    "delete_list_confirm": "Bu listeyi silmek istediğinize emin misiniz?",
+    "continue_watching": "İzlemeye Devam Et"
   },
   "player": {
     "server_url_missing": "Sunucu URL bulunamadı",

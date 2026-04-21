@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 import {
   View,
   ScrollView,
@@ -24,9 +24,48 @@ export default function MainScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const { lists, series, fetchSeries, isLoading, error, removeList } = useLibraryStore();
+  const { lists, series, fetchSeries, isLoading, error, removeList, watchProgress } = useLibraryStore();
   const firstSerie = series?.[0];
   const isOffline = !!error;
+
+  // Continue Watching — watchProgress'tan sürdürülebilir itemleri derler.
+  const continueWatching = useMemo(() => {
+    if (!watchProgress || !series?.length) return [];
+    return Object.entries(watchProgress)
+      .map(([episodeId, p]) => {
+        const serie = series.find((s) =>
+          s.seasons?.some((sea) =>
+            sea.episodes?.some((ep) => String(ep.id) === String(episodeId))
+          )
+        );
+        if (!serie) return null;
+        const season = serie.seasons.find((sea) =>
+          sea.episodes?.some((ep) => String(ep.id) === String(episodeId))
+        );
+        const episode = season?.episodes.find(
+          (ep) => String(ep.id) === String(episodeId)
+        );
+        if (!episode) return null;
+        const ratio = p.durationSec > 0 ? p.positionSec / p.durationSec : 0;
+        if (ratio >= 0.95) return null;
+        return { serie, season, episode, ...p };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, 10);
+  }, [watchProgress, series]);
+
+  const handleContinueWatchingPress = useCallback(
+    (item) => {
+      navigation.navigate("VideoPlayer", {
+        serieId: item.serie.id,
+        seasonId: item.season.id,
+        episodeId: item.episode.id,
+        title: item.episode.title,
+      });
+    },
+    [navigation]
+  );
 
   useEffect(() => {
     fetchSeries();
@@ -149,6 +188,18 @@ export default function MainScreen() {
               data={firstSerie}
               onComponentPress={() => handleSerieDetail(firstSerie.id)}
               onPlayPress={() => handlePlay(firstSerie)}
+            />
+          )}
+          {continueWatching.length > 0 && (
+            <HorizontalList
+              title={t('main.continue_watching') || "Continue Watching"}
+              data={continueWatching.map((item) => item.serie)}
+              onCardPress={(serie) => {
+                const item = continueWatching.find(
+                  (c) => c.serie.id === serie.id
+                );
+                if (item) handleContinueWatchingPress(item);
+              }}
             />
           )}
           {Array.isArray(lists) &&

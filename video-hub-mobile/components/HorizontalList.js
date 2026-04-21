@@ -72,14 +72,16 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
               )}
             </View>
           )}
-          <TouchableOpacity
-            onPress={handleSeeAll}
-            activeOpacity={0.7}
-            accessibilityLabel="See all"
-            accessibilityRole="button"
-          >
-            <Text style={styles.seeAll}>{t('common.see_all')}</Text>
-          </TouchableOpacity>
+          {onSeeAll && (
+            <TouchableOpacity
+              onPress={handleSeeAll}
+              activeOpacity={0.7}
+              accessibilityLabel="See all"
+              accessibilityRole="button"
+            >
+              <Text style={styles.seeAll}>{t('common.see_all')}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <FlatList

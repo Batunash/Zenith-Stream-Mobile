@@ -8,9 +8,8 @@ import { StatusBar } from "expo-status-bar";
 import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons"; 
 import { useLibraryStore } from "../../store/useLibraryStore";
-import AsyncStorage from "@react-native-async-storage/async-storage"; 
-import api from "../../lib/api";
-import { useKeepAwake } from 'expo-keep-awake'; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useKeepAwake } from 'expo-keep-awake';
 import { useTranslation } from "react-i18next"; 
 
 export default function VideoScreen() {
@@ -20,21 +19,37 @@ export default function VideoScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { serieId, episodeId } = route.params || {};
-  const { downloads, markProgress, markRecentlyWatched, series } = useLibraryStore();
-  
+  const {
+    downloads,
+    markProgress,
+    markRecentlyWatched,
+    setWatchProgress,
+    clearWatchProgress,
+    watchProgress,
+    series,
+    hasHydrated,
+  } = useLibraryStore();
+
   const [serverUrl, setServerUrl] = useState(null);
   const [isReady, setIsReady] = useState(false);
-  const [error, setError] = useState(null); 
-  const didSeekRef = useRef(false); 
-  
+  const [error, setError] = useState(null);
+  const didSeekRef = useRef(false);
+  const savedPositionSecRef = useRef(null);
+
   // Timeout kontrolü için ref
   const lastProgressRef = useRef(Date.now());
   const timeoutRef = useRef(null);
 
   const serie = series.find((s) => s.id === serieId);
   const episode = serie?.seasons?.flatMap((sea) => sea.episodes)?.find((ep) => ep.id === episodeId);
-  const resumeProgress = episode?.progress || 0;
   const downloadedItem = downloads.find(d => d.episodeId === episodeId);
+
+  // Resume pozisyonunu sadece bir kere (hidrasyon tamam olduktan sonra) oku.
+  // Böylece playback ilerledikçe store güncellense bile resume hedefi kaymaz.
+  if (savedPositionSecRef.current === null && hasHydrated) {
+    const saved = watchProgress?.[String(episodeId)];
+    savedPositionSecRef.current = saved?.positionSec || 0;
+  }
 
   // --- GÜVENLİ ÇIKIŞ FONKSİYONU ---
   const handleBack = useCallback(async () => {
@@ -66,8 +81,17 @@ export default function VideoScreen() {
   }, [navigation, player]);
   // --------------------------------
 
+  // Parametre doğrulaması — episodeId yoksa native katmanı kırmadan kullanıcıya göster.
+  useEffect(() => {
+    if (!episodeId) {
+      setError(t('player.video_not_found') || "Geçersiz video.");
+      setIsReady(true);
+    }
+  }, [episodeId, t]);
+
   // 1. GÜVENLİ SUNUCU KONTROLÜ
   useEffect(() => {
+    if (!episodeId) return;
     const loadServerUrl = async () => {
       if (downloadedItem) {
         setIsReady(true);
@@ -83,7 +107,7 @@ export default function VideoScreen() {
 
         try {
           const controller = new AbortController();
-          const id = setTimeout(() => controller.abort(), 2000); 
+          const id = setTimeout(() => controller.abort(), 2000);
           await fetch(url, { method: 'HEAD', signal: controller.signal });
           clearTimeout(id);
           setServerUrl(url);
@@ -99,7 +123,7 @@ export default function VideoScreen() {
       }
     };
     loadServerUrl();
-  }, [downloadedItem, t]);
+  }, [downloadedItem, t, episodeId]);
 
   const videoUri = downloadedItem 
     ? downloadedItem.localPath 
@@ -112,54 +136,70 @@ export default function VideoScreen() {
   }, [isReady, videoUri, error, t]);
 
   const player = useVideoPlayer(videoUri, (p) => {
-    if (videoUri) {
-        p.loop = false;
-        p.timeUpdateEventInterval = 1;
-        p.preservesPitch = true;
-        p.playsInSilentModeIOS = true; 
-        p.play();
+    if (!videoUri) return;
+    try {
+      p.loop = false;
+      p.timeUpdateEventInterval = 1;
+      p.preservesPitch = true;
+      p.playsInSilentModeIOS = true;
+      p.play();
+    } catch (err) {
+      console.warn("[VideoPlayer] init error", { episodeId, videoUri, err });
+      setError(t('player.playback_error') || "Video başlatılamadı.");
     }
   });
 
-  // 2. PLAYER EVENTLERİ
+  // 2. PLAYER EVENTLERİ — hidrasyon bitmeden bağlanmıyoruz ki kaydedilmiş pozisyon okunabilsin.
   useEffect(() => {
-    if (!player || !videoUri) return;
+    if (!player || !videoUri || !hasHydrated) return;
 
     const startWatchdog = () => {
-      if(timeoutRef.current) clearInterval(timeoutRef.current);
+      if (timeoutRef.current) clearInterval(timeoutRef.current);
       lastProgressRef.current = Date.now();
-      
+
       timeoutRef.current = setInterval(() => {
         if (Date.now() - lastProgressRef.current > 15000 && player.playing) {
-           console.warn("Video timeout");
-           setError(t('player.timeout') || "Video yüklenirken zaman aşımı oluştu.");
-           if(timeoutRef.current) clearInterval(timeoutRef.current);
+          console.warn("Video timeout");
+          setError(t('player.timeout') || "Video yüklenirken zaman aşımı oluştu.");
+          if (timeoutRef.current) clearInterval(timeoutRef.current);
         }
       }, 5000);
     };
 
     startWatchdog();
 
-    const sub = player.addListener("timeUpdate", async ({ currentTime, duration = 0 }) => { 
-      lastProgressRef.current = Date.now();
-      const safeDuration = duration || 0;
-      if (safeDuration <= 0) return;
-      const progress = currentTime / safeDuration;
-      
-      // Store güncellemelerini try-catch'e alalım ki player durmasın
+    const sub = player.addListener("timeUpdate", ({ currentTime, duration = 0 }) => {
       try {
-        markProgress(serieId, episodeId, progress);
-      } catch(e) {}
+        lastProgressRef.current = Date.now();
+        const safeDuration = duration || 0;
+        if (safeDuration <= 0) return;
 
-      if (!didSeekRef.current && resumeProgress > 0.02 && resumeProgress < 0.95) {
-        const seekTime = safeDuration * resumeProgress;
-        player.seekTo(seekTime);
-        didSeekRef.current = true; 
-      }
-      if (!downloadedItem && Math.floor(currentTime) % 5 === 0) {
+        // Önce seek — resume pozisyonu uygulanmadan progress yazmıyoruz ki yarış koşulu olmasın.
+        if (!didSeekRef.current) {
+          const target = savedPositionSecRef.current || 0;
+          if (target > 2 && target < safeDuration - 5) {
+            try {
+              player.currentTime = target;
+            } catch (seekErr) {
+              console.warn("[VideoPlayer] seek error", seekErr);
+            }
+          }
+          didSeekRef.current = true;
+          return;
+        }
+
+        // Her saniye çok fazla store güncellemesi yapmayalım — 5 saniyede bir yaz.
+        if (Math.floor(currentTime) % 5 !== 0) return;
+
+        const progress = currentTime / safeDuration;
         try {
-          api.put(`/episode/${episodeId}/progress`, { progress }).catch(() => {});
-        } catch (err) {}
+          setWatchProgress(episodeId, currentTime, safeDuration);
+          markProgress(serieId, episodeId, progress);
+        } catch (e) {
+          console.warn("[VideoPlayer] progress store error", e);
+        }
+      } catch (err) {
+        console.warn("[VideoPlayer] timeUpdate error", { episodeId, videoUri, err });
       }
     });
 
@@ -167,18 +207,52 @@ export default function VideoScreen() {
       try {
         markProgress(serieId, episodeId, 1);
         markRecentlyWatched({ serieId, episodeId });
-      } catch(e) { console.warn(e) }
-      
+        clearWatchProgress(episodeId);
+      } catch (e) { console.warn(e); }
+
       // Video bittiğinde de güvenli çıkış fonksiyonunu kullan
       handleBack();
+    });
+
+    // expo-video native hataları statusChange ile gelir — uygulamayı çökmek yerine
+    // mevcut hata ekranına düşür, gerçek sebebi logla.
+    const statusSub = player.addListener("statusChange", (ev) => {
+      try {
+        const status = ev?.status;
+        const playerError = ev?.error;
+        if (status === "error" || playerError) {
+          console.warn("[VideoPlayer] native error", { episodeId, videoUri, status, playerError });
+          setError(
+            playerError?.message ||
+            t('player.playback_error') ||
+            "Video oynatılamadı."
+          );
+        }
+      } catch (err) {
+        console.warn("[VideoPlayer] statusChange handler error", err);
+      }
     });
 
     return () => {
       sub.remove();
       endSub.remove();
-      if(timeoutRef.current) clearInterval(timeoutRef.current);
+      statusSub.remove();
+      if (timeoutRef.current) clearInterval(timeoutRef.current);
     };
-  }, [player, resumeProgress, videoUri, serieId, episodeId, downloadedItem, markProgress, markRecentlyWatched, handleBack]); 
+  }, [
+    player,
+    videoUri,
+    serieId,
+    episodeId,
+    downloadedItem,
+    markProgress,
+    markRecentlyWatched,
+    setWatchProgress,
+    clearWatchProgress,
+    handleBack,
+    hasHydrated,
+    t,
+  ]);
 
   // ROTASYON YÖNETİMİ (Giriş için)
   // useFocusEffect içinde sadece girişte landscape yapıyoruz.
@@ -224,7 +298,7 @@ export default function VideoScreen() {
     );
   }
 
-  if (!isReady || (!videoUri && !downloadedItem)) {
+  if (!hasHydrated || !isReady || (!videoUri && !downloadedItem)) {
     return (
       <View style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color="#C6A14A" />

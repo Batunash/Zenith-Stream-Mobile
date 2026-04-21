@@ -13,6 +13,7 @@ export const useLibraryStore = create(
       lists: [],
       downloads: [],
       recentlyWatched: [],
+      watchProgress: {},
       isLoading: false,
       error: null,
       isDownloading: false,
@@ -152,6 +153,25 @@ export const useLibraryStore = create(
           ].slice(0, 25),
         })),
 
+      setWatchProgress: (episodeId, positionSec, durationSec) =>
+        set((state) => ({
+          watchProgress: {
+            ...state.watchProgress,
+            [String(episodeId)]: {
+              positionSec,
+              durationSec,
+              updatedAt: Date.now(),
+            },
+          },
+        })),
+
+      clearWatchProgress: (episodeId) =>
+        set((state) => {
+          const next = { ...state.watchProgress };
+          delete next[String(episodeId)];
+          return { watchProgress: next };
+        }),
+
       addList: (list) => set((state) => ({
         lists: [
           ...state.lists,
@@ -185,6 +205,7 @@ export const useLibraryStore = create(
         lists: state.lists,
         downloads: state.downloads,
         recentlyWatched: state.recentlyWatched,
+        watchProgress: state.watchProgress,
       }),
       onRehydrateStorage: () => (state) => {
         state.setHydrated();
