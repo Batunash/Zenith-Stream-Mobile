@@ -70,7 +70,7 @@ export default function SerieDetailScreen() {
   const handleDelete = (episodeId, title) => {
       Alert.alert(
           t('common.delete'),
-          t('settings.clear_cache_msg'), // Burada "Emin misiniz" benzeri bir mesaj kullanılabilir veya custom bir mesaj eklenebilir
+          t('settings.clear_cache_msg'),
           [
               { text: t('common.cancel'), style: "cancel" },
               { 
@@ -99,13 +99,21 @@ export default function SerieDetailScreen() {
         handleEpisodePlay(serie.id, movieData.episode);
         return;
     }
-    const allEpisodes = serie.seasons
+    const allEpisodes = (serie.seasons || [])
+      .slice()
       .sort((a, b) => a.order - b.order)
       .flatMap((sea) =>
-        sea.episodes
+        (sea.episodes || [])
+          .slice()
           .sort((a, b) => a.order - b.order)
           .map((ep) => ({ ...ep, seasonId: sea.id }))
       );
+
+    if (allEpisodes.length === 0) {
+      Alert.alert(t('common.error'), t('detail.not_found'));
+      return;
+    }
+
     const lastWatched = allEpisodes.find(
       (ep) => ep.progress > 0 && ep.progress < 1
     );

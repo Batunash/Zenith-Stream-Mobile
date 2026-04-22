@@ -34,9 +34,14 @@ export default function VideoScreen() {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState(null);
   const didSeekRef = useRef(false);
+  const didStartRef = useRef(false);
   const savedPositionSecRef = useRef(null);
 
-  // Timeout kontrolü için ref
+  // handleBack runs during teardown where native player methods throw
+  // NativeSharedObjectNotFoundException — mirror time/duration into JS refs.
+  const currentTimeRef = useRef(0);
+  const durationRef = useRef(0);
+
   const lastProgressRef = useRef(Date.now());
   const timeoutRef = useRef(null);
 
@@ -44,44 +49,39 @@ export default function VideoScreen() {
   const episode = serie?.seasons?.flatMap((sea) => sea.episodes)?.find((ep) => ep.id === episodeId);
   const downloadedItem = downloads.find(d => d.episodeId === episodeId);
 
-  // Resume pozisyonunu sadece bir kere (hidrasyon tamam olduktan sonra) oku.
-  // Böylece playback ilerledikçe store güncellense bile resume hedefi kaymaz.
   if (savedPositionSecRef.current === null && hasHydrated) {
     const saved = watchProgress?.[String(episodeId)];
     savedPositionSecRef.current = saved?.positionSec || 0;
   }
 
-  // --- GÜVENLİ ÇIKIŞ FONKSİYONU ---
   const handleBack = useCallback(async () => {
     try {
-      // 1. Önce player'ı durdur (arka planda ses devam etmesin)
-      if (player) {
-        player.pause();
+      if (episodeId) {
+        const pos = currentTimeRef.current || 0;
+        const dur = durationRef.current || 0;
+        if (dur > 0 && pos > 2 && pos < dur - 1) {
+          try {
+            setWatchProgress(episodeId, pos, dur);
+          } catch (saveErr) {
+            console.warn("[VideoPlayer] handleBack save progress error", saveErr);
+          }
+        }
       }
 
-      // 2. Ekranı Dikey Moda Zorla
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-      
-      // 3. Android Navigasyon Barı ve Status Barı Geri Getir
+
       if (Platform.OS === "android") {
         await NavigationBar.setVisibilityAsync("visible");
       }
-      
-      // 4. Kısa bir gecikme ile sayfadan çık. 
-      // Bu gecikme, ekranın dikey moda dönmesi için UI'a zaman tanır.
+
       setTimeout(() => {
         navigation.goBack();
       }, 100);
-
-    } catch (error) {
-      console.warn("Çıkış hatası:", error);
-      // Hata olsa bile çıkmayı dene
+    } catch (err) {
       navigation.goBack();
     }
-  }, [navigation, player]);
-  // --------------------------------
+  }, [navigation, episodeId, setWatchProgress]);
 
-  // Parametre doğrulaması — episodeId yoksa native katmanı kırmadan kullanıcıya göster.
   useEffect(() => {
     if (!episodeId) {
       setError(t('player.video_not_found') || "Geçersiz video.");
@@ -89,7 +89,6 @@ export default function VideoScreen() {
     }
   }, [episodeId, t]);
 
-  // 1. GÜVENLİ SUNUCU KONTROLÜ
   useEffect(() => {
     if (!episodeId) return;
     const loadServerUrl = async () => {
@@ -107,16 +106,25 @@ export default function VideoScreen() {
 
         try {
           const controller = new AbortController();
-          const id = setTimeout(() => controller.abort(), 2000);
-          await fetch(url, { method: 'HEAD', signal: controller.signal });
+          const id = setTimeout(() => controller.abort(), 4000);
+          const streamUrl = `${url}/stream/${episodeId}`;
+          const resp = await fetch(streamUrl, { method: 'HEAD', signal: controller.signal });
           clearTimeout(id);
+          if (!resp.ok) {
+            setError(t('player.video_not_found') || "Video kaynağı bulunamadı.");
+            return;
+          }
+          const lenHeader = resp.headers.get('content-length');
+          const len = lenHeader ? parseInt(lenHeader, 10) : NaN;
+          if (!Number.isFinite(len) || len <= 0) {
+            setError(t('player.video_not_found') || "Video kaynağı bulunamadı.");
+            return;
+          }
           setServerUrl(url);
         } catch (pingErr) {
-          console.warn("Sunucuya erişilemedi:", pingErr);
           setError(t('player.connection_error') || "Sunucuya bağlanılamadı.");
         }
       } catch (e) {
-        console.error("Kritik hata", e);
         setError(t('player.playback_error') || "Beklenmedik bir hata oluştu.");
       } finally {
         setIsReady(true);
@@ -135,6 +143,8 @@ export default function VideoScreen() {
     }
   }, [isReady, videoUri, error, t]);
 
+  // iOS AVPlayer crashes if play() is called before the asset is validated —
+  // gated on statusChange 'readyToPlay' below instead of the setup callback.
   const player = useVideoPlayer(videoUri, (p) => {
     if (!videoUri) return;
     try {
@@ -142,14 +152,11 @@ export default function VideoScreen() {
       p.timeUpdateEventInterval = 1;
       p.preservesPitch = true;
       p.playsInSilentModeIOS = true;
-      p.play();
     } catch (err) {
-      console.warn("[VideoPlayer] init error", { episodeId, videoUri, err });
       setError(t('player.playback_error') || "Video başlatılamadı.");
     }
   });
 
-  // 2. PLAYER EVENTLERİ — hidrasyon bitmeden bağlanmıyoruz ki kaydedilmiş pozisyon okunabilsin.
   useEffect(() => {
     if (!player || !videoUri || !hasHydrated) return;
 
@@ -159,7 +166,6 @@ export default function VideoScreen() {
 
       timeoutRef.current = setInterval(() => {
         if (Date.now() - lastProgressRef.current > 15000 && player.playing) {
-          console.warn("Video timeout");
           setError(t('player.timeout') || "Video yüklenirken zaman aşımı oluştu.");
           if (timeoutRef.current) clearInterval(timeoutRef.current);
         }
@@ -168,39 +174,38 @@ export default function VideoScreen() {
 
     startWatchdog();
 
-    const sub = player.addListener("timeUpdate", ({ currentTime, duration = 0 }) => {
+    const sub = player.addListener("timeUpdate", ({ currentTime }) => {
       try {
         lastProgressRef.current = Date.now();
-        const safeDuration = duration || 0;
+        // expo-video 3.x timeUpdate payload doesn't include duration — read from player.
+        const safeDuration = Number(player.duration) || 0;
+        const nextTime = Number(currentTime);
+        if (Number.isFinite(nextTime) && nextTime >= 0) {
+          currentTimeRef.current = nextTime;
+        }
+        if (safeDuration > 0) {
+          durationRef.current = safeDuration;
+        }
         if (safeDuration <= 0) return;
 
-        // Önce seek — resume pozisyonu uygulanmadan progress yazmıyoruz ki yarış koşulu olmasın.
+        // Fallback seek in case timeUpdate fires before statusChange readyToPlay.
         if (!didSeekRef.current) {
           const target = savedPositionSecRef.current || 0;
           if (target > 2 && target < safeDuration - 5) {
-            try {
-              player.currentTime = target;
-            } catch (seekErr) {
-              console.warn("[VideoPlayer] seek error", seekErr);
-            }
+            try { player.currentTime = target; } catch (seekErr) {}
           }
           didSeekRef.current = true;
           return;
         }
 
-        // Her saniye çok fazla store güncellemesi yapmayalım — 5 saniyede bir yaz.
         if (Math.floor(currentTime) % 5 !== 0) return;
 
         const progress = currentTime / safeDuration;
         try {
           setWatchProgress(episodeId, currentTime, safeDuration);
           markProgress(serieId, episodeId, progress);
-        } catch (e) {
-          console.warn("[VideoPlayer] progress store error", e);
-        }
-      } catch (err) {
-        console.warn("[VideoPlayer] timeUpdate error", { episodeId, videoUri, err });
-      }
+        } catch (e) {}
+      } catch (err) {}
     });
 
     const endSub = player.addListener("playToEnd", () => {
@@ -208,32 +213,56 @@ export default function VideoScreen() {
         markProgress(serieId, episodeId, 1);
         markRecentlyWatched({ serieId, episodeId });
         clearWatchProgress(episodeId);
-      } catch (e) { console.warn(e); }
-
-      // Video bittiğinde de güvenli çıkış fonksiyonunu kullan
+      } catch (e) {}
       handleBack();
     });
 
-    // expo-video native hataları statusChange ile gelir — uygulamayı çökmek yerine
-    // mevcut hata ekranına düşür, gerçek sebebi logla.
     const statusSub = player.addListener("statusChange", (ev) => {
       try {
         const status = ev?.status;
         const playerError = ev?.error;
+
         if (status === "error" || playerError) {
-          console.warn("[VideoPlayer] native error", { episodeId, videoUri, status, playerError });
           setError(
             playerError?.message ||
             t('player.playback_error') ||
             "Video oynatılamadı."
           );
+          return;
         }
-      } catch (err) {
-        console.warn("[VideoPlayer] statusChange handler error", err);
-      }
+        if (status === "readyToPlay" && !didStartRef.current) {
+          didStartRef.current = true;
+
+          // Seek before play() to avoid a 0-flash before jumping to resume point.
+          try {
+            const target = savedPositionSecRef.current || 0;
+            const dur = Number(player.duration) || 0;
+            if (target > 2 && (dur <= 0 || target < dur - 5)) {
+              player.currentTime = target;
+            }
+            didSeekRef.current = true;
+          } catch (seekErr) {
+            didSeekRef.current = true;
+          }
+
+          try {
+            player.play();
+          } catch (playErr) {
+            setError(t('player.playback_error') || "Video oynatılamadı.");
+          }
+        }
+      } catch (err) {}
     });
 
     return () => {
+      // Covers gesture-back where handleBack doesn't fire.
+      try {
+        const pos = currentTimeRef.current || 0;
+        const dur = durationRef.current || 0;
+        if (episodeId && dur > 0 && pos > 2 && pos < dur - 1) {
+          setWatchProgress(episodeId, pos, dur);
+        }
+      } catch (e) {}
       sub.remove();
       endSub.remove();
       statusSub.remove();
@@ -254,9 +283,6 @@ export default function VideoScreen() {
     t,
   ]);
 
-  // ROTASYON YÖNETİMİ (Giriş için)
-  // useFocusEffect içinde sadece girişte landscape yapıyoruz.
-  // Çıkış işlemini handleBack ile manuel yönetiyoruz artık.
   useFocusEffect(
     useCallback(() => {
       const lockLandscape = async () => {
@@ -267,8 +293,7 @@ export default function VideoScreen() {
         }
       };
       lockLandscape();
-      
-      // Swipe ile geri gelme (Gesture) durumu için fallback cleanup
+
       return () => {
          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
          if (Platform.OS === "android") {
@@ -277,8 +302,6 @@ export default function VideoScreen() {
       };
     }, [])
   );
-
-  // --- RENDER ---
 
   if (error) {
      return (

@@ -24,11 +24,10 @@ export default function MainScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const { lists, series, fetchSeries, isLoading, error, removeList, watchProgress } = useLibraryStore();
+  const { lists, series, fetchSeries, isLoading, error, removeList, watchProgress, hasHydrated } = useLibraryStore();
   const firstSerie = series?.[0];
   const isOffline = !!error;
 
-  // Continue Watching — watchProgress'tan sürdürülebilir itemleri derler.
   const continueWatching = useMemo(() => {
     if (!watchProgress || !series?.length) return [];
     return Object.entries(watchProgress)
@@ -68,8 +67,9 @@ export default function MainScreen() {
   );
 
   useEffect(() => {
+    if (!hasHydrated) return;
     fetchSeries();
-  }, []);
+  }, [hasHydrated, fetchSeries]);
 
   const onRefresh = useCallback(() => {
     fetchSeries();
@@ -78,7 +78,6 @@ export default function MainScreen() {
   const handleSeeAll = (listId) =>
     navigation.navigate("SeeAllScreen", { listId });
 
-  // --- List Management Handlers ---
   const handleEditList = (list) => {
     navigation.navigate("CreateHorizontalViewScreen", {
       editMode: true,
@@ -103,7 +102,6 @@ export default function MainScreen() {
       ]
     );
   };
-  // --------------------------------
 
   const handlePlay = (serie) => {
     const firstSeason = serie.seasons?.[0];
@@ -153,14 +151,14 @@ export default function MainScreen() {
         </TouchableOpacity>
       )}
 
-      {isLoading && !series.length && (
+      {(!hasHydrated || (isLoading && !series.length)) && (
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#C6A14A" />
           <Text style={{ color: "#fff", marginTop: 10 }}>{t('main.library_loading')}</Text>
         </View>
       )}
 
-      {!isLoading && !series.length && !isOffline && (
+      {hasHydrated && !isLoading && !series.length && !isOffline && (
         <View style={styles.center}>
           <Text style={{ color: "#aaa", marginBottom: 20 }}>{t('main.no_series')}</Text>
           <TouchableOpacity onPress={fetchSeries} style={styles.reloadBtn}>
@@ -218,8 +216,8 @@ export default function MainScreen() {
                   data={listSeries}
                   onSeeAll={() => handleSeeAll(list.id)}
                   onCardPress={(serie) => handleSerieDetail(serie.id)}
-                  onEdit={() => handleEditList(list)} // Pass edit handler
-                  onDelete={() => handleDeleteList(list.id)} // Pass delete handler
+                  onEdit={() => handleEditList(list)}
+                  onDelete={() => handleDeleteList(list.id)}
                 />
               );
             })}
