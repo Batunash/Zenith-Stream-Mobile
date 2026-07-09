@@ -55,7 +55,7 @@ jobs:
         run: eas build --platform ios --profile production --auto-submit --non-interactive --wait
 
       - name: 📥 Download iOS Artifact from EAS
-        run: eas build:download --platform ios --non-interactive
+        run: eas build:download --platform ios --latest --non-interactive
 
       - name: 🤖 Build Android APK Locally
         run: eas build --platform android --profile github_release --local --non-interactive --output app-release.apk
