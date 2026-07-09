@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { View, Image, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
-export default function VideoCard({ Height, isSelected, onPress, data }) {
+const VideoCard = memo(function VideoCard({ Height, isSelected, onPress, data }) {
   const cardHeight = Height * 0.66;
   const cardWidth = width * 0.35;
   const [imageUri, setImageUri] = useState(
@@ -27,12 +27,14 @@ export default function VideoCard({ Height, isSelected, onPress, data }) {
     <TouchableOpacity
       style={[styles.container, { height: cardHeight, width: cardWidth }]}
       onPress={onPress}
+      testID="videocard-touchable"
     >
       <Image
         source={{ uri: imageUri }}
         resizeMode="cover"
         style={styles.image}
         onError={handleError} 
+        testID="videocard-image"
       />
       {isSelected && (
         <>
@@ -44,7 +46,9 @@ export default function VideoCard({ Height, isSelected, onPress, data }) {
       )}
     </TouchableOpacity>
   );
-}
+});
+
+export default VideoCard;
 
 const styles = StyleSheet.create({
   container: {

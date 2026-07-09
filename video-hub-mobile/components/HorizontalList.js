@@ -3,11 +3,11 @@ import React, { useCallback } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import VideoCard from "./VideoCard";
 import { useTranslation } from "react-i18next";
 
@@ -61,12 +61,12 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
           {(onEdit || onDelete) && (
             <View style={styles.editActions}>
               {onEdit && (
-                <TouchableOpacity onPress={handleEdit} style={styles.actionBtn}>
+                <TouchableOpacity onPress={handleEdit} style={styles.actionBtn} testID="horizontal-edit">
                   <Text style={{ color: '#C6A14A', fontSize: 18 }}>✎</Text>
                 </TouchableOpacity>
               )}
               {onDelete && (
-                <TouchableOpacity onPress={handleDelete} style={styles.actionBtn}>
+                <TouchableOpacity onPress={handleDelete} style={styles.actionBtn} testID="horizontal-delete">
                   <Text style={{ color: '#ef4444', fontSize: 18 }}>🗑</Text>
                 </TouchableOpacity>
               )}
@@ -78,19 +78,21 @@ export default function HorizontalList({ title, data = [], onSeeAll, onCardPress
               activeOpacity={0.7}
               accessibilityLabel="See all"
               accessibilityRole="button"
+              testID="horizontal-see-all"
             >
               <Text style={styles.seeAll}>{t('common.see_all')}</Text>
             </TouchableOpacity>
           )}
         </View>
       </View>
-      <FlatList
+      <FlashList
         data={data}
         horizontal
         keyExtractor={(item, index) => String(item?.id ?? index)}
         renderItem={renderItem}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        estimatedItemSize={120}
       />
     </View>
   );

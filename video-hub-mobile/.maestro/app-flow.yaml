@@ -1,0 +1,43 @@
+appId: com.zenith.stream
+---
+- launchApp
+# Assuming we are on connection screen initially
+- tapOn:
+    id: "connection-url-input"
+- inputText: "http://192.168.1.100:5000"
+- tapOn: "Bağlan"
+
+# Log in
+- tapOn:
+    id: "login-username-input"
+- inputText: "testuser"
+- tapOn:
+    id: "login-password-input"
+- inputText: "password"
+- tapOn: "Giriş Yap"
+
+# Home Screen Navigation
+- assertVisible:
+    id: "main-refresh-btn"
+- tapOn:
+    id: "add-list-btn"
+- tapOn: "İptal"
+
+# Footer Navigation
+- tapOn:
+    id: "footer-tab-search"
+- tapOn:
+    id: "footer-tab-downloads"
+- tapOn:
+    id: "footer-tab-settings"
+
+# Settings Screen Checks
+- tapOn: "Tema"
+- tapOn: "Açık"
+- tapOn: "Dil"
+- tapOn: "English"
+
+# Logout
+- tapOn: "Logout"
+- tapOn: "Logout"
+- assertVisible: "Login"

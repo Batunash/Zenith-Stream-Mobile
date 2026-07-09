@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import EpisodeGroup from "./EpisodeGroup";
 import { useTranslation } from "react-i18next";
-export default function EpisodeAccordion({ seasons, serieId, onDownload, onDelete, onPlay }) {
+const EpisodeAccordion = memo(function EpisodeAccordion({ seasons, serieId, onDownload, onDelete, onPlay }) {
   const [expandedId, setExpandedId] = useState(null);
   const { t } = useTranslation();
   const handleToggle = (id) => {
@@ -27,7 +27,9 @@ export default function EpisodeAccordion({ seasons, serieId, onDownload, onDelet
       ))}
     </View>
   );
-}
+});
+
+export default EpisodeAccordion;
 
 const styles = StyleSheet.create({
   container: {

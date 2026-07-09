@@ -88,7 +88,7 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+        <TouchableOpacity testID="toggle-password-btn" onPress={() => setShowPassword(!showPassword)}>
           <Ionicons
             name={showPassword ? "eye-outline" : "eye-off-outline"}
             size={20}
@@ -99,6 +99,7 @@ export default function LoginScreen() {
 
       <TouchableOpacity
         style={styles.button}
+        testID="login-btn"
         onPress={handleLogin}
         disabled={isLoading}
       >
@@ -119,7 +120,7 @@ export default function LoginScreen() {
         }}
       >
         <Text style={styles.text}>{t('auth.signup_prompt')} </Text>
-        <TouchableOpacity onPress={handleSignupButton}>
+        <TouchableOpacity testID="signup-btn" onPress={handleSignupButton}>
           <Text
             style={[
               styles.text,

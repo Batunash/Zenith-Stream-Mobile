@@ -8,6 +8,7 @@ import SerieDetailScreen from '../screens/AppScreens/SerieDetailScreen';
 import CreateHorizontalViewScreen from '../screens/AppScreens/CreateHorizontalViewScreen'
 import VideoPlayer from '../screens/AppScreens/VideoPlayer';
 import SettingsScreen from '../screens/AppScreens/SettingsScreen';
+import CloudConnectionScreen from '../screens/AppScreens/CloudConnectionScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,7 @@ export default function AppStack() {
        <Stack.Screen name="SerieDetailScreen" component={SerieDetailScreen} />
        <Stack.Screen name="VideoPlayer" component={VideoPlayer} />
        <Stack.Screen name="Profile" component={SettingsScreen} />
+       <Stack.Screen name="CloudConnection" component={CloudConnectionScreen} />
     </Stack.Navigator>
   );
 }

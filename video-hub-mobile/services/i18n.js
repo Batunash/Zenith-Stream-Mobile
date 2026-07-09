@@ -3,10 +3,14 @@ import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'expo-localization';
 import en from '../locales/en.json';
 import tr from '../locales/tr.json';
+import es from '../locales/es.json';
+import de from '../locales/de.json';
 
 const resources = {
   en: { translation: en },
   tr: { translation: tr },
+  es: { translation: es },
+  de: { translation: de },
 };
 const deviceLanguage = getLocales()[0]?.languageCode ?? 'en';
 

@@ -7,21 +7,25 @@ const api = axios.create({
 });
 api.interceptors.request.use(
   async (config) => {
-    const serverUrl = await AsyncStorage.getItem("server-url");    
-    if (serverUrl) {
-      const cleanUrl = serverUrl.endsWith("/api") 
-        ? serverUrl 
-        : `${serverUrl}/api`;
-        
+    const cloudUrl = await AsyncStorage.getItem("cloud-url");
+    const localUrl = await AsyncStorage.getItem("server-url");
+
+    const baseUrl = cloudUrl || localUrl;
+
+    if (baseUrl) {
+      const cleanUrl = baseUrl.endsWith("/api")
+        ? baseUrl
+        : `${baseUrl}/api`;
+
       config.baseURL = cleanUrl;
     } else {
       console.log("⚠️ Uyarı: Henüz server-url ayarlanmamış.");
     }
     const jsonValue = await AsyncStorage.getItem("auth-storage");
-    
+
     if (jsonValue) {
       const parsed = JSON.parse(jsonValue);
-      const token = parsed?.state?.token;      
+      const token = parsed?.state?.token;
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }

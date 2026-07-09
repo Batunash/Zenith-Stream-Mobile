@@ -68,7 +68,7 @@ export default function CreateHorizontalViewScreen() {
       ]}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+        <TouchableOpacity testID="back-btn" onPress={handleGoBack} style={styles.backButton}>
           <Ionicons name="arrow-back-outline" size={32} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
@@ -106,7 +106,7 @@ export default function CreateHorizontalViewScreen() {
         </View>
       </ScrollView>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.createButton} onPress={handleCreateList}>
+        <TouchableOpacity style={styles.createButton} testID="create-list-btn" onPress={handleCreateList}>
           <Text style={styles.buttonText}>
             {editMode ? t('create_list.update_btn') || "Update List" : t('create_list.create_btn')}
           </Text>

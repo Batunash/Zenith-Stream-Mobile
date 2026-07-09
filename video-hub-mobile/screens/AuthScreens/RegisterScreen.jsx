@@ -88,7 +88,7 @@ export default function RegisterScreen() {
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+        <TouchableOpacity testID="toggle-password-btn" onPress={() => setShowPassword(!showPassword)}>
           <Ionicons
             name={showPassword ? "eye-outline" : "eye-off-outline"}
             size={20}
@@ -99,6 +99,7 @@ export default function RegisterScreen() {
 
       <TouchableOpacity
         style={styles.button}
+        testID="register-btn"
         onPress={handleRegister}
         disabled={isLoading}
       >
@@ -118,7 +119,7 @@ export default function RegisterScreen() {
         }}
       >
         <Text style={styles.text}>{t('auth.login_prompt')} </Text>
-        <TouchableOpacity onPress={handleSigninButton}>
+        <TouchableOpacity testID="signin-btn" onPress={handleSigninButton}>
           <Text
             style={[
               styles.text,

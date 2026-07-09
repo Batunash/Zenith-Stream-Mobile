@@ -1,0 +1,64 @@
+name: Release (TestFlight & GitHub)
+
+on:
+  push:
+    tags:
+      - 'v*' # Tetikleyici: sadece v ile başlayan tag'lerde çalışır (örn: v1.0.0)
+
+jobs:
+  build-and-release:
+    name: Build & Submit iOS and Android
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # GitHub Release oluşturmak için yetki
+
+    steps:
+      - name: 🏗 Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: ☕ Setup Java (For Android Local Build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 🚀 Setup Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🍎 Build iOS on EAS & Auto-Submit to TestFlight
+        # EAS'in macOS sunucularında build edilir ve App Store Connect'e gönderilir
+        run: eas build --platform ios --profile production --auto-submit --non-interactive --wait
+
+      - name: 📥 Download iOS Artifact from EAS
+        # Yukarıda alınan iOS build'in IPA dosyasını Actions makinesine indiriyoruz
+        # eas build:download default olarak en son build'leri indirir
+        run: eas build:download --platform ios --non-interactive
+
+      - name: 🤖 Build Android APK Locally
+        # GitHub Actions makinesinde sıfır EAS kotası harcayarak lokal build alırız
+        # Çıkan dosyayı app-release.apk olarak kaydederiz
+        run: eas build --platform android --profile github_release --local --non-interactive --output app-release.apk
+
+      - name: 🏷 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.ipa
+            app-release.apk
+          generate_release_notes: true

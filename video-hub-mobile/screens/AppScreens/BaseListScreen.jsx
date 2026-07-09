@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import {
   View,
-  FlatList,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
@@ -12,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Serie from "../../components/Serie";
 import Footer from "../../components/Footer";
+import { FlashList } from "@shopify/flash-list";
 import { useTranslation } from "react-i18next"; 
 const { width } = Dimensions.get("window");
 
@@ -70,16 +70,19 @@ export default function BaseListScreen({
           {headerTitle || t('main.my_list')} 
         </Text>
       </View>
-      <FlatList
-        data={listData}
-        keyExtractor={(item, index) => String(item?.id ?? index)}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={renderEmpty}
-        contentContainerStyle={
-          listData.length === 0 && { flexGrow: 1, justifyContent: "center" }
-        }
-      />
+      <View style={{ flex: 1, width: '100%' }}>
+        <FlashList
+          data={listData}
+          keyExtractor={(item, index) => String(item?.id ?? index)}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={renderEmpty}
+          contentContainerStyle={
+            listData.length === 0 && { flexGrow: 1, justifyContent: "center" }
+          }
+          estimatedItemSize={250}
+        />
+      </View>
 
       <Footer />
     </View>

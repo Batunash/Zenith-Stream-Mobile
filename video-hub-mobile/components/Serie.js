@@ -38,11 +38,12 @@ export default function Serie({ serie, onSeriePress, onPlayPress, showDownloaded
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => onSeriePress?.(serie.id)}>
+      <TouchableOpacity onPress={() => onSeriePress?.(serie.id)} testID="serie-touchable">
         <Image 
             source={{ uri: imageUri }} 
             style={styles.image} 
             onError={handleError} 
+            testID="serie-image"
         />
       </TouchableOpacity>
 
@@ -64,12 +65,14 @@ export default function Serie({ serie, onSeriePress, onPlayPress, showDownloaded
               <View style={styles.episodeActions}>
                 <TouchableOpacity
                   onPress={() => onPlayPress?.(serie.id, item)}
+                  testID={`play-btn-${item.id}`}
                 >
                   <Ionicons name="play" size={20} color="#C6A14A" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => handleDeleteEpisode(item.id)}
                   style={{ marginLeft: 12 }}
+                  testID={`delete-btn-${item.id}`}
                 >
                   <Ionicons name="trash-outline" size={20} color="red" />
                 </TouchableOpacity>

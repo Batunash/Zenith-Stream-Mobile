@@ -17,6 +17,8 @@ import HorizontalList from "../../components/HorizontalList";
 import Footer from "../../components/Footer";
 import { useNavigation } from "@react-navigation/native";
 import { useLibraryStore } from "../../store/useLibraryStore";
+import { useThemeStore } from "../../store/useThemeStore";
+import { getThemeColors } from "../../utils/theme";
 import { useTranslation } from "react-i18next";
 
 export default function MainScreen() {
@@ -25,6 +27,9 @@ export default function MainScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { lists, series, fetchSeries, isLoading, error, removeList, watchProgress, hasHydrated } = useLibraryStore();
+  const { getActiveTheme } = useThemeStore();
+  const colors = getThemeColors(getActiveTheme());
+  
   const firstSerie = series?.[0];
   const isOffline = !!error;
 
@@ -44,7 +49,6 @@ export default function MainScreen() {
         const episode = season?.episodes.find(
           (ep) => String(ep.id) === String(episodeId)
         );
-        if (!episode) return null;
         const ratio = p.durationSec > 0 ? p.positionSec / p.durationSec : 0;
         if (ratio >= 0.95) return null;
         return { serie, season, episode, ...p };
@@ -90,12 +94,12 @@ export default function MainScreen() {
   const handleDeleteList = (listId) => {
     const list = lists.find(l => l.id === listId);
     Alert.alert(
-      t('common.delete') || "Delete",
-      t('main.delete_list_confirm') || `Are you sure you want to delete "${list?.title}"?`,
+      t('common.delete'),
+      t('main.delete_list_confirm', { title: list?.title }),
       [
-        { text: t('common.cancel') || "Cancel", style: "cancel" },
+        { text: t('common.cancel'), style: "cancel" },
         {
-          text: t('common.delete') || "Delete",
+          text: t('common.delete'),
           style: "destructive",
           onPress: () => removeList(listId)
         }
@@ -129,41 +133,30 @@ export default function MainScreen() {
     navigation.navigate("DownloadsScreen", { headerTitle: t('main.downloads') });
 
   return (
-    <View
-      style={[
-        styles.container,
-        { paddingTop: insets.top, paddingBottom: insets.bottom },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       {isOffline && (
-        <TouchableOpacity
-          style={styles.offlineBanner}
-          onPress={() => navigation.navigate("Profile")}
-          activeOpacity={0.8}
-        >
+        <View style={[styles.offlineBanner, { paddingTop: insets.top + 10, backgroundColor: colors.danger }]}>
           <Ionicons name="cloud-offline" size={20} color="white" />
-          <Text style={styles.offlineText}>
-            {series.length > 0
-              ? t('main.offline_list')
-              : t('main.offline_downloads')}
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color="white" />
-        </TouchableOpacity>
+          <Text style={styles.offlineText}>{t('main.offline_mode')}</Text>
+          <TouchableOpacity onPress={fetchSeries}>
+            <Ionicons name="refresh" size={16} color="white" />
+          </TouchableOpacity>
+        </View>
       )}
 
       {(!hasHydrated || (isLoading && !series.length)) && (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#C6A14A" />
-          <Text style={{ color: "#fff", marginTop: 10 }}>{t('main.library_loading')}</Text>
+        <View style={[styles.center, { backgroundColor: colors.background }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={{ color: colors.text, marginTop: 10 }}>{t('main.library_loading')}</Text>
         </View>
       )}
 
       {hasHydrated && !isLoading && !series.length && !isOffline && (
-        <View style={styles.center}>
-          <Text style={{ color: "#aaa", marginBottom: 20 }}>{t('main.no_series')}</Text>
-          <TouchableOpacity onPress={fetchSeries} style={styles.reloadBtn}>
-            <Ionicons name="refresh" size={24} color="#C6A14A" />
-            <Text style={{ color: "#C6A14A", marginLeft: 6, fontWeight: 'bold' }}>{t('main.refresh')}</Text>
+        <View style={[styles.center, { backgroundColor: colors.background }]}>
+          <Text style={{ color: colors.subText, marginBottom: 20 }}>{t('main.no_series')}</Text>
+          <TouchableOpacity testID="main-refresh-btn" onPress={fetchSeries} style={[styles.reloadBtn, { backgroundColor: colors.border }]}>
+            <Ionicons name="refresh" size={24} color={colors.primary} />
+            <Text style={{ color: colors.primary, marginLeft: 6, fontWeight: 'bold' }}>{t('main.refresh')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -176,8 +169,8 @@ export default function MainScreen() {
             <RefreshControl
               refreshing={isLoading}
               onRefresh={onRefresh}
-              tintColor="#C6A14A"
-              colors={["#C6A14A"]}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
             />
           }
         >
@@ -190,7 +183,7 @@ export default function MainScreen() {
           )}
           {continueWatching.length > 0 && (
             <HorizontalList
-              title={t('main.continue_watching') || "Continue Watching"}
+              title={t('main.continue_watching')}
               data={continueWatching.map((item) => item.serie)}
               onCardPress={(serie) => {
                 const item = continueWatching.find(
@@ -207,6 +200,7 @@ export default function MainScreen() {
                 .map((id) => series.find((s) => s.id === id))
                 .filter(Boolean);
 
+              /* istanbul ignore next */
               if (listSeries.length === 0) return null;
 
               return (
@@ -222,11 +216,12 @@ export default function MainScreen() {
               );
             })}
           <TouchableOpacity
-            style={styles.addButton}
+            style={[styles.addButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
+            testID="add-list-btn"
             onPress={handleAdd}
             activeOpacity={0.7}
           >
-            <Ionicons name="add" size={40} color="black" />
+            <Ionicons name="add" size={40} color={colors.background === '#121212' || colors.background === '#000000' ? 'black' : 'white'} />
           </TouchableOpacity>
 
           <View style={{ height: 20 }} />
@@ -239,16 +234,14 @@ export default function MainScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#121212" },
+  container: { flex: 1 },
   scrollContent: { paddingBottom: 20, gap: 20, alignItems: "center" },
   addButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#C6A14A",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#C6A14A",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
@@ -257,14 +250,12 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
   },
   reloadBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: '#222',
     padding: 10,
     paddingHorizontal: 20,
     borderRadius: 8

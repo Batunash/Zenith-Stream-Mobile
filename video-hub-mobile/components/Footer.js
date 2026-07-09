@@ -17,6 +17,7 @@ const Footer = () => {
       <TouchableOpacity
         style={styles.iconContainer}
         onPress={() => navigation.navigate('Main')}
+        testID="footer-home"
       >
         <Ionicons
           name={currentRoute === 'Main' ? 'home' : 'home-outline'}
@@ -29,6 +30,7 @@ const Footer = () => {
       <TouchableOpacity
         style={styles.iconContainer}
         onPress={() => navigation.navigate('DownloadsScreen')}
+        testID="footer-downloads"
       >
         <Ionicons
           name={currentRoute === 'DownloadsScreen' ? 'download' : 'download-outline'}
@@ -41,6 +43,7 @@ const Footer = () => {
       <TouchableOpacity
         style={styles.iconContainer}
         onPress={() => navigation.navigate('Profile')}
+        testID="footer-profile"
       >
         <Ionicons
           name={currentRoute === 'Profile' ? 'person' : 'person-outline'}

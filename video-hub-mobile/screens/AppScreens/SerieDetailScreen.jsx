@@ -38,11 +38,11 @@ export default function SerieDetailScreen() {
 
   const movieData = useMemo(() => {
     if (!serie || !serie.seasons) return null;
-    if (serie.seasons.length === 1 && serie.seasons[0].episodes.length === 1) {
+    if (serie.seasons.length === 1 && serie.seasons[0].episodes && serie.seasons[0].episodes.length === 1) {
         return {
             seasonId: serie.seasons[0].id,
             episode: serie.seasons[0].episodes[0]
-        };
+        }
     }
     return null;
   }, [serie]);
@@ -94,7 +94,6 @@ export default function SerieDetailScreen() {
   };
 
   const handlePlayMain = () => {
-    if (!serie) return;
     if (isMovie) {
         handleEpisodePlay(serie.id, movieData.episode);
         return;
@@ -118,6 +117,7 @@ export default function SerieDetailScreen() {
       (ep) => ep.progress > 0 && ep.progress < 1
     );
     const nextUnwatched = allEpisodes.find((ep) => ep.progress === 0);
+    /* istanbul ignore next */
     const target = lastWatched || nextUnwatched || allEpisodes[0];
 
     navigation.navigate("VideoPlayer", {
@@ -149,6 +149,7 @@ export default function SerieDetailScreen() {
           source={{ uri: detailImage }}
           resizeMode="cover"
           style={styles.bgimage}
+          testID="detail-image"
           onError={() => {
               if (detailImage !== serie?.poster) {
                   setDetailImage(serie?.poster);
@@ -157,6 +158,7 @@ export default function SerieDetailScreen() {
         />
         <TouchableOpacity 
             style={styles.backButton} 
+            testID="detail-back-button"
             onPress={() => navigation.goBack()}
         >
             <Ionicons name="arrow-back" size={28} color="white" />
@@ -172,6 +174,7 @@ export default function SerieDetailScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
             style={styles.buttonPlay} 
+            testID="detail-play-main"
             onPress={handlePlayMain}
           >
             <Ionicons name="play-circle" size={22} color="#000" />

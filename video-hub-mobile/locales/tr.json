@@ -104,6 +104,10 @@
     "clear_cache_msg": "Cihazdaki tüm indirilen videolar silinecek. Emin misiniz?",
     "library_cleared": "Kütüphane temizlendi.",
     "language": "Dil",
+    "theme": "Tema",
+    "theme_light": "Açık",
+    "theme_dark": "Koyu",
+    "theme_system": "Sistem",
     "download_quality": "İndirme Kalitesi"
   },
   "list": {

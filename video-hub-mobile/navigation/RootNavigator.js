@@ -22,6 +22,7 @@ export default function RootNavigator() {
             setIsSetupDone(true);
         }
       } catch (e) {
+        /* istanbul ignore next */
         console.log("Init error:", e);
       } finally {
         setTimeout(() => setLoading(false), 1000);

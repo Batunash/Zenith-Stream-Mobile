@@ -39,10 +39,11 @@ export default function EpisodeGroup({
                 <Text style={styles.duration}>{episode.duration}</Text>
               </View>
               
-              <TouchableOpacity onPress={() => onPlay(serieId, episode)} style={{marginRight: 15}}>
+              <TouchableOpacity testID={`play-btn-${episode.id}`} onPress={() => onPlay(serieId, episode)} style={{marginRight: 15}}>
                 <Ionicons name="play-circle" size={28} color="#C6A14A" />
               </TouchableOpacity>              
               <TouchableOpacity 
+                testID={`action-btn-${episode.id}`}
                 onPress={() => isDownloaded 
                     ? onDelete(episode.id, episode.title) 
                     : onDownload(serieId, episode.id)
