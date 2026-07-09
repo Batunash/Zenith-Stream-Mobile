@@ -9,6 +9,11 @@ jobs:
   build-and-release:
     name: Build & Submit iOS and Android
     runs-on: ubuntu-latest
+    
+    # Tüm run komutlarının proje klasörü içinde çalışmasını sağlar
+    defaults:
+      run:
+        working-directory: video-hub-mobile
 
     permissions:
       contents: write # GitHub Release oluşturmak için yetki
@@ -22,6 +27,7 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+          cache-dependency-path: video-hub-mobile/package-lock.json
 
       - name: 📦 Install dependencies
         run: npm ci
@@ -42,23 +48,19 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 🍎 Build iOS on EAS & Auto-Submit to TestFlight
-        # EAS'in macOS sunucularında build edilir ve App Store Connect'e gönderilir
         run: eas build --platform ios --profile production --auto-submit --non-interactive --wait
 
       - name: 📥 Download iOS Artifact from EAS
-        # Yukarıda alınan iOS build'in IPA dosyasını Actions makinesine indiriyoruz
-        # eas build:download default olarak en son build'leri indirir
         run: eas build:download --platform ios --non-interactive
 
       - name: 🤖 Build Android APK Locally
-        # GitHub Actions makinesinde sıfır EAS kotası harcayarak lokal build alırız
-        # Çıkan dosyayı app-release.apk olarak kaydederiz
         run: eas build --platform android --profile github_release --local --non-interactive --output app-release.apk
 
       - name: 🏷 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          # action-gh-release `working-directory` saymaz, bu yüzden dosya yolunu belirtiyoruz
           files: |
-            *.ipa
-            app-release.apk
+            video-hub-mobile/*.ipa
+            video-hub-mobile/app-release.apk
           generate_release_notes: true
