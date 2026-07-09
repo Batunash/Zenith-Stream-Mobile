@@ -75,8 +75,8 @@ export default function SettingsScreen() {
     ]);
   };
 
-  const SettingItem = ({ icon, title, subtitle, onPress, color = "white", danger = false }) => (
-    <TouchableOpacity style={[styles.item, { borderBottomColor: colors.border }]} onPress={onPress} disabled={!onPress}>
+  const SettingItem = ({ icon, title, subtitle, onPress, color = "white", danger = false, testID }) => (
+    <TouchableOpacity testID={testID} style={[styles.item, { borderBottomColor: colors.border }]} onPress={onPress} disabled={!onPress}>
       <View style={[styles.iconBox, { backgroundColor: danger ? colors.dangerBg : colors.border }]}>
         <Ionicons name={icon} size={22} color={danger ? colors.danger : colors.primary} />
       </View>
@@ -173,12 +173,14 @@ export default function SettingsScreen() {
         <Text style={[styles.sectionTitle, { color: colors.subText }]}>{t('settings.section_app')}</Text>
         <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
             <SettingItem 
+                testID="settings-language"
                 icon="language-outline" 
                 title={t('settings.language')}
                 subtitle={i18n.language?.toUpperCase() || 'EN'}
                 onPress={handleLanguageChange}
             />
             <SettingItem 
+                testID="settings-theme"
                 icon="color-palette-outline" 
                 title={t('settings.theme')}
                 subtitle={t(`settings.theme_${theme}`)}

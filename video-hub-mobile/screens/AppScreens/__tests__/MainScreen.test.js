@@ -148,10 +148,10 @@ describe('MainScreen', () => {
     act(() => {
       offlineBtn.props.onPress();
     });
-    expect(mockNavigate).toHaveBeenCalledWith('Profile');
+    expect(mockFetchSeries).toHaveBeenCalled();
   });
 
-  it('renders offline banner with offline_list text when there are series', () => {
+  it('renders offline banner with offline_mode text when there are series', () => {
     useLibraryStore.mockReturnValue({
       ...defaultStore,
       error: 'Network Error',
@@ -165,7 +165,7 @@ describe('MainScreen', () => {
     const root = rootRenderer.root;
 
     const offlineText = root.findAll(node => 
-      node.type === 'Text' && node.props.children === 'main.offline_list'
+      node.type === 'Text' && node.props.children === 'main.offline_mode'
     )[0];
     expect(offlineText).toBeTruthy();
   });

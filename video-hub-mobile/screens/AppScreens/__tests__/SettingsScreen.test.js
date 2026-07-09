@@ -311,11 +311,7 @@ describe('SettingsScreen', () => {
     act(() => {
       rootRenderer = renderer.create(<SettingsScreen />);
     });
-    const languageBtn = rootRenderer.root.findAllByType('Text').find(t => {
-        if(typeof t.props.children === 'string') return t.props.children === 'settings.language';
-        if(Array.isArray(t.props.children)) return t.props.children.join('') === 'settings.language';
-        return false;
-    }).parent.parent;
+    const languageBtn = rootRenderer.root.findByProps({ testID: 'settings-language' });
     act(() => {
       languageBtn.props.onPress();
     });
@@ -337,11 +333,7 @@ describe('SettingsScreen', () => {
     act(() => {
       rootRenderer = renderer.create(<SettingsScreen />);
     });
-    const themeBtn = rootRenderer.root.findAllByType('Text').find(t => {
-        if(typeof t.props.children === 'string') return t.props.children === 'settings.theme';
-        if(Array.isArray(t.props.children)) return t.props.children.join('') === 'settings.theme';
-        return false;
-    }).parent.parent;
+    const themeBtn = rootRenderer.root.findByProps({ testID: 'settings-theme' });
     act(() => {
       themeBtn.props.onPress();
     });

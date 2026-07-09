@@ -138,7 +138,7 @@ export default function MainScreen() {
         <View style={[styles.offlineBanner, { paddingTop: insets.top + 10, backgroundColor: colors.danger }]}>
           <Ionicons name="cloud-offline" size={20} color="white" />
           <Text style={styles.offlineText}>{t('main.offline_mode')}</Text>
-          <TouchableOpacity onPress={fetchSeries}>
+          <TouchableOpacity testID="offline-banner" onPress={fetchSeries}>
             <Ionicons name="refresh" size={16} color="white" />
           </TouchableOpacity>
         </View>
