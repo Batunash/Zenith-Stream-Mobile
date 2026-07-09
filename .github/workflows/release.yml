@@ -60,6 +60,8 @@ jobs:
           curl -L -o app-release.ipa "$LATEST_BUILD_URL"
 
       - name: 🤖 Build Android APK Locally
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=\"-Xmx4096m -XX:MaxMetaspaceSize=1024m\""
         run: eas build --platform android --profile github_release --local --non-interactive --output app-release.apk
 
       - name: 🏷 Create GitHub Release
