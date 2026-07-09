@@ -56,8 +56,8 @@ jobs:
 
       - name: 📥 Download iOS Artifact from EAS
         run: |
-          LATEST_BUILD_ID=$(eas build:list --platform ios --status finished --limit 1 --json --non-interactive | jq -r '.[0].id')
-          eas build:download --build-id $LATEST_BUILD_ID --non-interactive
+          LATEST_BUILD_URL=$(eas build:list --platform ios --status finished --limit 1 --json --non-interactive | jq -r '.[0].artifacts.buildUrl')
+          curl -L -o app-release.ipa "$LATEST_BUILD_URL"
 
       - name: 🤖 Build Android APK Locally
         run: eas build --platform android --profile github_release --local --non-interactive --output app-release.apk

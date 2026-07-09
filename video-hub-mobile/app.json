@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zenith Stream",
     "slug": "video-hub-mobile",
-    "version": "1.0.0",
+    "version": "2.0.7",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
