@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zenith Stream",
     "slug": "video-hub-mobile",
-    "version": "2.0.7",
+    "version": "2.0.8",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -12,11 +12,20 @@
       "resizeMode": "contain",
       "backgroundColor": "#121212"
     },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c87311b7-b130-4516-8027-4e0bc041c266"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.batunash.zenithstream",
       "buildNumber": "1",
       "infoPlist": {
+        "UIBackgroundModes": [
+          "fetch"
+        ],
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
